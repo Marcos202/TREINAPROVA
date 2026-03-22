@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"c:/Users/marco/OneDrive/Documentos/TREINAPROVA/apps/web/src/app/\\(hub\\)/login/\")",
+      "Bash(ls \"c:/Users/marco/OneDrive/Documentos/TREINAPROVA/apps/web/src/app/\\(tenant\\)/[tenant]/\")",
+      "Bash(pnpm exec:*)",
+      "Bash(grep -r \"database.types\\\\|Subject\\\\|Question\" c:/Users/marco/OneDrive/Documentos/TREINAPROVA/apps/web/src --include=*.ts --include=*.tsx -l)",
+      "Bash(head -5 \"c:/Users/marco/OneDrive/Documentos/TREINAPROVA/apps/web/src/app/\\(tenant\\)/[tenant]/questoes/_actions.ts\")",
+      "Bash(supabase --version)",
+      "Bash(supabase status:*)"
+    ]
+  }
+}

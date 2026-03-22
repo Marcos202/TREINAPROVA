@@ -7,7 +7,7 @@ export function createClient() {
 
   const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
   const isLocal = hostname === '127.0.0.1' || hostname.includes('localhost');
-  const cookieDomain = isLocal ? hostname : '.treinaprova.com';
+  const cookieDomain = isLocal ? undefined : '.treinaprova.com';
 
   supabaseClient = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

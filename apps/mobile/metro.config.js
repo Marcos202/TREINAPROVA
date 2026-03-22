@@ -1,11 +1,11 @@
 const { getDefaultConfig } = require("expo/metro-config");
-const { withNativeWind } = require("nativewind/metro");
+const { withNativewind } = require("nativewind/metro");
 const path = require("path");
 
 const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, "../..");
 
-const config = getDefaultConfig(projectRoot, { isCSSEnabled: true });
+const config = getDefaultConfig(projectRoot);
 
 config.watchFolders = [workspaceRoot];
 config.resolver.nodeModulesPaths = [
@@ -15,4 +15,8 @@ config.resolver.nodeModulesPaths = [
 
 config.resolver.disableHierarchicalLookup = true;
 
-module.exports = withNativeWind(config, { input: "./global.css" });
+module.exports = withNativewind(config, {
+  input: "./global.css",
+  inlineVariables: false,
+  globalClassNamePolyfill: false,
+});
