@@ -1,13 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import { cleanupReplacedImages } from '../_actions/cleanupReplacedImages';
 import { SmartField } from './SmartField';
 import { SubjectField } from './SubjectField';
 import { MultiSelectField } from './MultiSelectField';
-import { RichTextEditor } from './RichTextEditor';
 import type { Subject, QuestionRow, QuestionOption, DifficultyLevel } from './types';
+
+// Lazy load do TipTap (~100KB) — carrega apenas quando o formulário é aberto.
+// O ssr: false também elimina o erro "SSR has been detected" do TipTap.
+const RichTextEditor = dynamic(
+  () => import('./RichTextEditor').then((m) => ({ default: m.RichTextEditor })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[160px] rounded-lg border border-slate-200 bg-slate-50 animate-pulse" />
+    ),
+  }
+);
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'] as const;
 
