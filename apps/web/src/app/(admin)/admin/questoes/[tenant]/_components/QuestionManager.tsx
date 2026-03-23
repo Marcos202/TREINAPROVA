@@ -44,33 +44,34 @@ export function QuestionManager({ tenant, tenantLabel, subjects }: Props) {
   return (
     <div className="space-y-6">
       {/* ── Breadcrumb + title ── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-sm text-zinc-500 mb-1">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          {/* Breadcrumb — oculto no mobile para economizar espaço */}
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-zinc-500 mb-1 flex-wrap">
             <span>Banco de Questões</span>
             <span>/</span>
-            <span className="text-zinc-800 font-medium">{tenantLabel}</span>
+            <span className="text-zinc-700 font-medium">{tenantLabel}</span>
             {view === 'form' && (
               <>
                 <span>/</span>
-                <span className="text-zinc-800 font-medium">
+                <span className="text-zinc-700 font-medium">
                   {isEditing ? 'Editar Questão' : 'Nova Questão'}
                 </span>
               </>
             )}
           </div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight truncate">
             {view === 'list' ? tenantLabel : isEditing ? 'Editar Questão' : 'Nova Questão'}
           </h1>
           {view === 'list' && (
-            <p className="text-sm text-zinc-500 mt-1">
+            <p className="hidden sm:block text-sm text-zinc-500 mt-1">
               Gerencie questões da vertical <strong>{tenantLabel}</strong>.
             </p>
           )}
         </div>
 
-        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
-          tenant: {tenant}
+        <span className="shrink-0 inline-flex items-center px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-zinc-100 text-zinc-600 border border-zinc-200 whitespace-nowrap">
+          {tenant}
         </span>
       </div>
 

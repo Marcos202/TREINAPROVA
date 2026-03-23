@@ -116,10 +116,10 @@ export default async function AdminDashboard() {
       </div>
 
       {/* ── Bottom Row ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 
         {/* Distribuição por Vertical — 2/3 */}
-        <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        <div className="md:col-span-2 lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <div>
               <h3 className="text-sm font-semibold text-gray-800">Distribuição por Vertical</h3>

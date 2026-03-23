@@ -164,26 +164,25 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
     <div className="space-y-4">
 
       {/* ── Header row ── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-zinc-500">
-            {loading ? 'Carregando...' : `${total} questão${total !== 1 ? 'ões' : ''} cadastrada${total !== 1 ? 's' : ''}`}
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-zinc-500 truncate">
+          {loading ? 'Carregando...' : `${total} questão${total !== 1 ? 'ões' : ''}`}
+        </p>
         <button
           onClick={onNew}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-zinc-900 rounded-md hover:bg-zinc-800 transition-colors"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-2 text-sm font-semibold text-white bg-zinc-900 rounded-lg hover:bg-zinc-800 transition-colors shrink-0 touch-manipulation"
         >
           <PlusIcon className="w-4 h-4" />
-          Nova Questão
+          <span className="hidden sm:inline">Nova Questão</span>
+          <span className="sm:hidden">Nova</span>
         </button>
       </div>
 
       {/* ── Filter bar ── */}
-      <div className="bg-white border border-zinc-200 rounded-lg p-4 shadow-sm">
-        <div className="flex flex-wrap gap-3 items-end">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[200px]">
+      <div className="bg-white border border-zinc-200 rounded-lg p-3 sm:p-4 shadow-sm">
+        <div className="flex flex-wrap gap-2 sm:gap-3 items-end">
+          {/* Search — ocupa linha inteira no mobile */}
+          <div className="relative w-full sm:flex-1 sm:min-w-[200px]">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
             <input
               type="text"
@@ -198,9 +197,9 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
           <select
             value={fSubject}
             onChange={(e) => { setFSubject(e.target.value); setPage(0); }}
-            className={`${filterInput} w-44`}
+            className={`${filterInput} flex-1 sm:flex-none sm:w-44 min-w-[120px]`}
           >
-            <option value="">Todas as disciplinas</option>
+            <option value="">Disciplina</option>
             {subjects.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
@@ -210,7 +209,7 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
           <select
             value={fDifficulty}
             onChange={(e) => { setFDifficulty(e.target.value); setPage(0); }}
-            className={`${filterInput} w-36`}
+            className={`${filterInput} flex-1 sm:flex-none sm:w-36 min-w-[100px]`}
           >
             <option value="">Dificuldade</option>
             <option value="easy">Fácil</option>
@@ -218,13 +217,13 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
             <option value="hard">Difícil</option>
           </select>
 
-          {/* Ano */}
+          {/* Ano — oculto no mobile se não preenchido */}
           <input
             type="number"
             value={fYear}
             onChange={(e) => { setFYear(e.target.value); setPage(0); }}
             placeholder="Ano"
-            className={`${filterInput} w-24`}
+            className={`${filterInput} w-24 ${!fYear ? 'hidden sm:block' : ''}`}
           />
 
           {/* Banca */}
@@ -233,7 +232,7 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
             value={fBanca}
             onChange={(e) => { setFBanca(e.target.value); setPage(0); }}
             placeholder="Banca"
-            className={`${filterInput} w-36`}
+            className={`${filterInput} sm:w-36 flex-1 min-w-[80px] ${!fBanca ? 'hidden sm:block' : ''}`}
           />
 
           {/* Subcategoria */}
@@ -242,16 +241,16 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
             value={fSubcategory}
             onChange={(e) => { setFSubcategory(e.target.value); setPage(0); }}
             placeholder="Subcategoria"
-            className={`${filterInput} w-40`}
+            className={`${filterInput} sm:w-40 flex-1 min-w-[100px] ${!fSubcategory ? 'hidden sm:block' : ''}`}
           />
 
           {/* Clear */}
           {hasFilters && (
             <button
               onClick={clearFilters}
-              className="text-xs text-zinc-400 hover:text-zinc-700 underline underline-offset-2 transition-colors whitespace-nowrap py-2"
+              className="text-xs text-zinc-500 hover:text-zinc-800 font-medium underline underline-offset-2 transition-colors whitespace-nowrap py-2 px-1 touch-manipulation"
             >
-              Limpar filtros
+              Limpar
             </button>
           )}
         </div>
@@ -273,7 +272,7 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
 
       {/* ── Table ── */}
       <div className="bg-white border border-zinc-200 rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-zinc-900 text-zinc-100">

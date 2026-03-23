@@ -41,7 +41,7 @@ export default async function AdminQuestoesTenantPage({ params }: Props) {
   return (
     <div className="space-y-6">
       {/* Stats bar */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <StatCard label="Questões" value={questionCount} suffix="cadastradas" />
         <StatCard label="Disciplinas" value={subjects.length} suffix="disponíveis" />
         <StatCard label="Vertical" value={label} suffix={tenant} isText />
@@ -81,12 +81,12 @@ function StatCard({
   isText?: boolean;
 }) {
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg px-4 py-3 shadow-sm">
-      <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{label}</p>
-      <p className={`font-bold mt-0.5 ${isText ? 'text-base text-zinc-800' : 'text-2xl text-zinc-900'}`}>
+    <div className="bg-white border border-zinc-200 rounded-lg px-3 sm:px-4 py-3 shadow-sm">
+      <p className="text-[10px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider truncate">{label}</p>
+      <p className={`font-bold mt-0.5 truncate ${isText ? 'text-sm sm:text-base text-zinc-800' : 'text-xl sm:text-2xl text-zinc-900'}`}>
         {value}
       </p>
-      <p className="text-xs text-zinc-400 mt-0.5">{suffix}</p>
+      <p className="text-[10px] sm:text-xs text-zinc-400 mt-0.5 truncate">{suffix}</p>
     </div>
   );
 }
