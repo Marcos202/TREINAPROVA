@@ -99,7 +99,7 @@ function Toolbar({
         title="Negrito (Ctrl+B)"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M15.6 11.79A4 4 0 0 0 12 5H6v14h7a4.5 4.5 0 0 0 2.6-8.21zM9 7.5h3a1.5 1.5 0 0 1 0 3H9V7.5zm3.5 9H9v-3h3.5a1.5 1.5 0 0 1 0 3z"/>
+          <path d="M15.6 11.79A4 4 0 0 0 12 5H6v14h7a4.5 4.5 0 0 0 2.6-8.21zM9 7.5h3a1.5 1.5 0 0 1 0 3H9V7.5zm3.5 9H9v-3h3.5a1.5 1.5 0 0 1 0 3z" />
         </svg>
       </ToolbarBtn>
       <ToolbarBtn
@@ -108,7 +108,7 @@ function Toolbar({
         title="Itálico (Ctrl+I)"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M10 5v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V5z"/>
+          <path d="M10 5v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V5z" />
         </svg>
       </ToolbarBtn>
       <ToolbarBtn
@@ -117,7 +117,7 @@ function Toolbar({
         title="Sublinhado (Ctrl+U)"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z"/>
+          <path d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z" />
         </svg>
       </ToolbarBtn>
       <ToolbarBtn
@@ -126,7 +126,7 @@ function Toolbar({
         title="Tachado"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M6.85 7.08C6.85 4.37 9.45 3 12.24 3c1.64 0 3 .49 3.9 1.28.77.65 1.46 1.73 1.46 3.24h-3.01c0-.31-.05-.58-.15-.8-.29-.65-1.011-.99-2.14-.99-1.31 0-2.27.52-2.27 1.61 0 .79.507 1.26 1.65 1.56l1.34.32c.75.18 1.44.46 2.04.81H6v2h12v-2H13.1c.06.25.1.5.1.78 0 2.57-2.46 4.19-5.15 4.19-2.17 0-3.73-.74-4.68-1.74-.87-.9-1.27-2-1.27-3.14zM5 19h14v-2H5v2z"/>
+          <path d="M6.85 7.08C6.85 4.37 9.45 3 12.24 3c1.64 0 3 .49 3.9 1.28.77.65 1.46 1.73 1.46 3.24h-3.01c0-.31-.05-.58-.15-.8-.29-.65-1.011-.99-2.14-.99-1.31 0-2.27.52-2.27 1.61 0 .79.507 1.26 1.65 1.56l1.34.32c.75.18 1.44.46 2.04.81H6v2h12v-2H13.1c.06.25.1.5.1.78 0 2.57-2.46 4.19-5.15 4.19-2.17 0-3.73-.74-4.68-1.74-.87-.9-1.27-2-1.27-3.14zM5 19h14v-2H5v2z" />
         </svg>
       </ToolbarBtn>
 
@@ -139,7 +139,7 @@ function Toolbar({
         title="Lista com marcadores"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/>
+          <path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z" />
         </svg>
       </ToolbarBtn>
       <ToolbarBtn
@@ -148,7 +148,7 @@ function Toolbar({
         title="Lista numerada"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"/>
+          <path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z" />
         </svg>
       </ToolbarBtn>
 
@@ -168,7 +168,7 @@ function Toolbar({
         title="Inserir / remover link"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+          <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
         </svg>
       </ToolbarBtn>
 
@@ -180,12 +180,12 @@ function Toolbar({
       >
         {imageUploading ? (
           <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" strokeOpacity=".25"/>
-            <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/>
+            <circle cx="12" cy="12" r="10" strokeOpacity=".25" />
+            <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
           </svg>
         ) : (
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
           </svg>
         )}
       </ToolbarBtn>
@@ -199,7 +199,7 @@ function Toolbar({
         title="Desfazer (Ctrl+Z)"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+          <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" />
         </svg>
       </ToolbarBtn>
       <ToolbarBtn
@@ -208,7 +208,7 @@ function Toolbar({
         title="Refazer (Ctrl+Y)"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-          <path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/>
+          <path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z" />
         </svg>
       </ToolbarBtn>
     </div>
@@ -328,7 +328,7 @@ export function RichTextEditor({
     if (!editor) return;
     // Only force-update editor when value is reset to empty externally
     if (value === '' && prevValueRef.current !== '') {
-      editor.commands.setContent('', false);
+      editor.commands.setContent('', { emitUpdate: false });
     }
     prevValueRef.current = value;
   }, [value, editor]);

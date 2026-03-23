@@ -1,0 +1,67 @@
+
+> treina-prova-monorepo@1.0.0 build C:\Users\marco\OneDrive\Documentos\TREINAPROVA
+> turbo run build "--filter=web"
+
+ÔÇó turbo 2.8.17
+ÔÇó Packages in scope: web
+ÔÇó Running build in 1 packages
+ÔÇó Remote caching disabled
+web:build: cache miss, executing e9c17bb83b254d97
+web:build: 
+web:build: > web@0.1.0 build C:\Users\marco\OneDrive\Documentos\TREINAPROVA\apps\web
+web:build: > next build --webpack
+web:build: 
+web:build: ÔÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+web:build:  We detected multiple lockfiles and selected the directory of C:\Users\marco\OneDrive\Documentos\TREINAPROVA\pnpm-lock.yaml as the root directory.
+web:build:  To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+web:build:    See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+web:build:  Detected additional lockfiles: 
+web:build:    * C:\Users\marco\OneDrive\Documentos\TREINAPROVA\apps\web\pnpm-lock.yaml
+web:build: 
+web:build: Ôû▓ Next.js 16.1.6 (webpack)
+web:build: - Environments: .env.local
+web:build: 
+web:build: ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+web:build:   Creating an optimized production build ...
+web:build: (node:29804) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/marco/OneDrive/Documentos/TREINAPROVA/apps/web/tailwind.config.ts?id=1774277445116 is not specified and it doesn't parse as CommonJS.
+web:build: Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+web:build: To eliminate this warning, add "type": "module" to C:\Users\marco\OneDrive\Documentos\TREINAPROVA\apps\web\package.json.
+web:build: (Use `node --trace-warnings ...` to show where the warning was created)
+web:build: Ô£ô Compiled successfully in 2.4s
+web:build:   Running TypeScript ...
+web:build:   Collecting page data using 11 workers ...
+web:build:   Generating static pages using 11 workers (0/16) ...
+web:build:   Generating static pages using 11 workers (4/16) 
+web:build:   Generating static pages using 11 workers (8/16) 
+web:build:   Generating static pages using 11 workers (12/16) 
+web:build: Ô£ô Generating static pages using 11 workers (16/16) in 441.1ms
+web:build:   Finalizing page optimization ...
+web:build:   Collecting build traces ...
+web:build: 
+web:build: Route (app)
+web:build: Ôöî Ôùï /
+web:build: Ôö£ Ôùï /_not-found
+web:build: Ôö£ ãÆ /[tenant]
+web:build: Ôö£ ãÆ /[tenant]/login
+web:build: Ôö£ ãÆ /[tenant]/questoes
+web:build: Ôö£ ãÆ /admin
+web:build: Ôö£ Ôùï /admin/cards
+web:build: Ôö£ Ôùï /admin/questoes
+web:build: Ôö£ ãÆ /admin/questoes/[tenant]
+web:build: Ôö£ Ôùï /admin/simulados
+web:build: Ôö£ Ôùï /admin/usuarios
+web:build: Ôö£ Ôùï /aluno
+web:build: Ôö£ ãÆ /api/webhooks/r2-cleanup
+web:build: Ôöö Ôùï /login
+web:build: 
+web:build: 
+web:build: ãÆ Proxy (Middleware)
+web:build: 
+web:build: Ôùï  (Static)   prerendered as static content
+web:build: ãÆ  (Dynamic)  server-rendered on demand
+web:build: 
+
+ Tasks:    1 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    16.612s 
+
