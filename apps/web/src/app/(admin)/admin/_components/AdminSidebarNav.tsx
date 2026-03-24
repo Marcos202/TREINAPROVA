@@ -66,22 +66,38 @@ export function AdminSidebarNav() {
         {questoesOpen && (
           <div className="mt-0.5 ml-3 pl-3 border-l border-zinc-800 space-y-0.5 py-1">
             {VALID_TENANTS.map((tenant) => {
-              const href = `/admin/questoes/${tenant}`;
-              const active = pathname.startsWith(href);
+              const questoesHref = `/admin/questoes/${tenant}`;
+              const disciplinasHref = `/admin/disciplinas/${tenant}`;
+              const questoesActive = pathname.startsWith(questoesHref);
+              const disciplinasActive = pathname.startsWith(disciplinasHref);
               const colors = TENANT_COLORS[tenant] ?? { dot: 'bg-zinc-500', active: 'text-zinc-300' };
               return (
-                <Link
-                  key={tenant}
-                  href={href}
-                  className={`flex items-center gap-2 px-2 py-1.5 text-[12px] rounded-md transition-all duration-150 ${
-                    active
-                      ? `${colors.active} font-semibold bg-zinc-800/60`
-                      : 'text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900/40'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? colors.dot : 'bg-zinc-700'}`} />
-                  {TENANT_LABELS[tenant]}
-                </Link>
+                <div key={tenant} className="space-y-0.5">
+                  {/* Link: Questões */}
+                  <Link
+                    href={questoesHref}
+                    className={`flex items-center gap-2 px-2 py-1.5 text-[12px] rounded-md transition-all duration-150 ${
+                      questoesActive
+                        ? `${colors.active} font-semibold bg-zinc-800/60`
+                        : 'text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900/40'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${questoesActive ? colors.dot : 'bg-zinc-700'}`} />
+                    {TENANT_LABELS[tenant]}
+                  </Link>
+                  {/* Link: Disciplinas */}
+                  <Link
+                    href={disciplinasHref}
+                    className={`flex items-center gap-2 pl-4 pr-2 py-1 text-[11px] rounded-md transition-all duration-150 ${
+                      disciplinasActive
+                        ? 'text-zinc-300 font-medium bg-zinc-800/40'
+                        : 'text-zinc-700 hover:text-zinc-400 hover:bg-zinc-900/30'
+                    }`}
+                  >
+                    <BookOpenIcon className="w-3 h-3 shrink-0" />
+                    Disciplinas
+                  </Link>
+                </div>
               );
             })}
           </div>
@@ -117,6 +133,15 @@ export function AdminSidebarNav() {
 }
 
 /* ── Icons ────────────────────────────────────────────── */
+
+function BookOpenIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+    </svg>
+  );
+}
 
 function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

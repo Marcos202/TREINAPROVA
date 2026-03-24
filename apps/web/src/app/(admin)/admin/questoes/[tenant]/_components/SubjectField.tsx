@@ -56,7 +56,12 @@ export function SubjectField({ tenant, subjects, value, onChange }: SubjectField
     setAdding(false);
 
     if (error) {
-      setAddError(error.message);
+      // Código 23505 = violação de unique constraint (subjects_tenant_name_unique)
+      if (error.code === '23505') {
+        setAddError('Disciplina já existe. Selecione-a no dropdown.');
+      } else {
+        setAddError(error.message);
+      }
       return;
     }
 

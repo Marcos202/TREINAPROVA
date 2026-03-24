@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"c:\\\\Users\\\\marco\\\\OneDrive\\\\Documentos\\\\TREINAPROVA\\\\apps\\\\web\\\\src\\\\app\\\\\\(admin\\)\\\\admin\" -type d)",
+      "Read(//c/Users/marco/AppData/Local/Temp/claude/c--Users-marco-OneDrive-Documentos-TREINAPROVA/6e70a130-10d9-4b96-bc34-704e386142f8/tasks/**)"
+    ]
+  }
+}
