@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { TENANT_THEME } from '@/config/tenants';
 
 /* ──────────────────────────────────────────────────────────────────────────────
-   SVG Icon components — compact, consistent, no emoji
+   SVG Icon components
    ────────────────────────────────────────────────────────────────────────────── */
 
 function IconDashboard(props: React.SVGProps<SVGSVGElement>) {
@@ -58,24 +58,6 @@ function IconCommunity(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function IconSettings(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function IconBack(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m12 19-7-7 7-7" />
-      <path d="M19 12H5" />
-    </svg>
-  );
-}
-
 function IconLogout(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -107,10 +89,11 @@ export default function Sidebar({ tenant, tenantLabel }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-[260px] flex-shrink-0 min-h-screen flex-col bg-white border-r border-slate-200/80">
-        {/* Brand header */}
-        <div className="px-5 h-[72px] flex items-center gap-3">
+      {/* ── Desktop Sidebar ─────────────────────────────────────────── */}
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 z-50 w-80 flex-col bg-white border-r border-slate-200/80">
+
+        {/* Brand header — height matches top bar (68px) */}
+        <div className="px-5 h-[68px] flex items-center gap-3 border-b border-slate-200/70 flex-shrink-0">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
             style={{ background: theme.accentGradient }}
@@ -129,11 +112,8 @@ export default function Sidebar({ tenant, tenantLabel }: SidebarProps) {
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="px-5"><div className="h-px bg-slate-100" /></div>
-
-        {/* Navigation */}
-        <nav className="flex-1 px-3 pt-4 pb-3 flex flex-col gap-0.5">
+        {/* Navigation — flex-1 + overflow-y-auto para scroll interno */}
+        <nav className="flex-1 overflow-y-auto px-3 pt-4 pb-2 flex flex-col gap-0.5">
           <p className="px-3 mb-2 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
             Menu
           </p>
@@ -158,7 +138,7 @@ export default function Sidebar({ tenant, tenantLabel }: SidebarProps) {
                   }
                 `}
               >
-                <Icon className="w-[18px] h-[18px]" />
+                <Icon className="w-[18px] h-[18px] flex-shrink-0" />
                 <span>{item.label}</span>
                 {isActive && (
                   <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.accent }} />
@@ -168,59 +148,43 @@ export default function Sidebar({ tenant, tenantLabel }: SidebarProps) {
           })}
         </nav>
 
-        {/* Bottom section — settings + back */}
-        <div className="px-3 pb-3 mt-auto space-y-0.5">
-          <div className="h-px bg-slate-100 mx-2 mb-2" />
-          <a
-            href={`/${tenant}/configuracoes`}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 ${theme.sidebarHover} transition-all duration-150`}
-          >
-            <IconSettings className="w-[18px] h-[18px]" />
-            <span>Configurações</span>
-          </a>
+        {/* ── Promo Card — FORA do scroll, sempre visível ─────────── */}
+        <div className="px-3 pb-2 flex-shrink-0">
+          <div className="rounded-xl bg-indigo-50 border border-indigo-100 p-4">
+            <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm mb-3">
+              <svg className="w-5 h-5 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+              </svg>
+            </div>
+            <p className="text-[13px] font-semibold text-slate-800 leading-tight mb-1">
+              Treina Prova Premium
+            </p>
+            <p className="text-[11px] text-slate-500 leading-relaxed mb-3">
+              Desbloqueie estatísticas avançadas e simulados infinitos.
+            </p>
+            <button
+              className="w-full py-2 rounded-lg text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: theme.accentGradient }}
+            >
+              Fazer Upgrade
+            </button>
+          </div>
+        </div>
+
+        {/* ── Logout — minimalista ─────────────────────────────────── */}
+        <div className="px-3 pb-4 flex-shrink-0">
+          <div className="h-px bg-slate-100 mb-2" />
           <a
             href="/aluno"
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 ${theme.sidebarHover} transition-all duration-150`}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-150"
           >
-            <IconBack className="w-[18px] h-[18px]" />
-            <span>Voltar ao Hub</span>
+            <IconLogout className="w-[18px] h-[18px]" />
+            <span>Sair</span>
           </a>
         </div>
       </aside>
 
-      {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-t border-slate-200/80 flex items-center justify-around px-2 py-1.5 safe-area-bottom">
-        {NAV_ITEMS.slice(0, 4).map((item) => {
-          const fullHref = `/${tenant}${item.path}`;
-          const isActive =
-            item.path === ''
-              ? pathname === `/${tenant}` || pathname === `/${tenant}/`
-              : pathname.startsWith(`/${tenant}${item.path}`);
-          const Icon = item.icon;
-
-          return (
-            <a
-              key={item.path}
-              href={fullHref}
-              className={`flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg text-[10px] font-medium transition-colors ${isActive ? 'text-slate-900' : 'text-slate-400'
-                }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span>{item.label.length > 10 ? item.label.substring(0, 10) + '…' : item.label}</span>
-              {isActive && (
-                <span className="w-1 h-1 rounded-full -mt-0.5" style={{ backgroundColor: theme.accent }} />
-              )}
-            </a>
-          );
-        })}
-        <a
-          href="/aluno"
-          className="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg text-[10px] font-medium text-slate-400"
-        >
-          <IconLogout className="w-5 h-5" />
-          <span>Sair</span>
-        </a>
-      </nav>
     </>
   );
 }
+
