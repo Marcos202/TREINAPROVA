@@ -12,6 +12,11 @@ export async function middleware(request: NextRequest) {
   const isAlunoRoute = pathname.startsWith('/aluno');
   const isAdminRoute = pathname.startsWith('/admin');
 
+  // Raiz `/` redireciona para /login
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
   // Rotas não protegidas passam sem verificação
   if (!isTenantRoute && !isAlunoRoute && !isAdminRoute) {
     return NextResponse.next();
