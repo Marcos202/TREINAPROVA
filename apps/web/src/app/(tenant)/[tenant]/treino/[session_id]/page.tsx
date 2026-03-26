@@ -49,7 +49,7 @@ export default async function TreinoSessionPage({ params }: Props) {
       theme={theme}
       sessionId={session_id}
       userId={session.user.id}
-      questions={questions}
+      questions={questions as any}
       initialIndex={Math.min((qSession.current_index as number) ?? 0, questions.length - 1)}
     />
   );

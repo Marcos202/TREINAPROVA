@@ -8,9 +8,9 @@ import type { Subject, QuestionRow, DifficultyLevel } from './types';
 const PAGE_SIZE = 20;
 
 const DIFFICULTY: Record<DifficultyLevel, { label: string; cls: string }> = {
-  easy:   { label: 'Fácil',   cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  medium: { label: 'Média',   cls: 'bg-amber-50   text-amber-700   border-amber-200'   },
-  hard:   { label: 'Difícil', cls: 'bg-red-50     text-red-700     border-red-200'     },
+  easy: { label: 'Fácil', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  medium: { label: 'Média', cls: 'bg-amber-50   text-amber-700   border-amber-200' },
+  hard: { label: 'Difícil', cls: 'bg-red-50     text-red-700     border-red-200' },
 };
 
 function parseSubcategories(raw: string | null): string[] {
@@ -96,16 +96,16 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
 
     let q = supabase
       .from('questions')
-      .select('*, subjects(name)', { count: 'exact' })
+      .select('*, subjects(name), exam_boards(name), institutions(name)', { count: 'exact' })
       .eq('tenant_id', tenant)
       .order('created_at', { ascending: false })
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
-    if (searchDeb)    q = q.ilike('text', `%${searchDeb}%`);
-    if (fSubject)     q = q.eq('subject_id', fSubject);
-    if (fDifficulty)  q = q.eq('difficulty', fDifficulty);
-    if (fYear)        q = q.eq('year', parseInt(fYear, 10));
-    if (fBanca)       q = q.ilike('exam_board', `%${fBanca}%`);
+    if (searchDeb) q = q.ilike('text', `%${searchDeb}%`);
+    if (fSubject) q = q.eq('subject_id', fSubject);
+    if (fDifficulty) q = q.eq('difficulty', fDifficulty);
+    if (fYear) q = q.eq('year', parseInt(fYear, 10));
+    if (fBanca) q = q.ilike('exam_boards.name' as any, `%${fBanca}%`);
     // Filtra na coluna JSONB `subcategories` (migration 00005).
     // cs = "contains" em PostgREST: verifica se o array contém o elemento exato.
     if (fSubcategory) q = q.contains('subcategories', [fSubcategory]);
@@ -158,7 +158,7 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const from = total === 0 ? 0 : page * PAGE_SIZE + 1;
-  const to   = Math.min((page + 1) * PAGE_SIZE, total);
+  const to = Math.min((page + 1) * PAGE_SIZE, total);
 
   return (
     <div className="space-y-4">
@@ -376,8 +376,8 @@ export function QuestionList({ tenant, subjects, refreshKey, onNew, onEdit }: Pr
                       {q.year ? (
                         <span className="block text-zinc-800 font-medium text-xs">{q.year}</span>
                       ) : null}
-                      {q.exam_board ? (
-                        <span className="block text-zinc-400 text-xs">{q.exam_board}</span>
+                      {q.exam_boards?.name ? (
+                        <span className="block text-zinc-400 text-xs">{q.exam_boards.name}</span>
                       ) : !q.year ? (
                         <span className="text-zinc-300 text-xs">—</span>
                       ) : null}
