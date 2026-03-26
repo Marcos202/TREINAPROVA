@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { QuestionList } from './QuestionList';
 import { QuestionForm } from './QuestionForm';
-import type { Subject, QuestionRow } from './types';
+import type { Subject, ExamBoard, Institution, QuestionRow } from './types';
 
 type View = 'list' | 'form';
 
@@ -11,9 +11,11 @@ interface Props {
   tenant: string;
   tenantLabel: string;
   subjects: Subject[];
+  examBoards: ExamBoard[];
+  institutions: Institution[];
 }
 
-export function QuestionManager({ tenant, tenantLabel, subjects }: Props) {
+export function QuestionManager({ tenant, tenantLabel, subjects, examBoards, institutions }: Props) {
   const [view, setView] = useState<View>('list');
   const [editingQuestion, setEditingQuestion] = useState<QuestionRow | null>(null);
   const [listRefreshKey, setListRefreshKey] = useState(0);
@@ -103,6 +105,8 @@ export function QuestionManager({ tenant, tenantLabel, subjects }: Props) {
             key={editingQuestion?.id ?? 'new'}
             tenant={tenant}
             subjects={subjects}
+            examBoards={examBoards}
+            institutions={institutions}
             initialData={editingQuestion ?? undefined}
             onSuccess={handleSuccess}
             onCancel={handleCancel}
