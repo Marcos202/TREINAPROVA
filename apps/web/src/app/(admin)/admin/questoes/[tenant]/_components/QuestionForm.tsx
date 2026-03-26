@@ -7,7 +7,8 @@ import { cleanupReplacedImages } from '../_actions/cleanupReplacedImages';
 import { SmartField } from './SmartField';
 import { SubjectField } from './SubjectField';
 import { MultiSelectField } from './MultiSelectField';
-import type { Subject, QuestionRow, QuestionOption, DifficultyLevel } from './types';
+import { DomainSelectField } from './DomainSelectField';
+import type { Subject, ExamBoard, Institution, QuestionRow, QuestionOption, DifficultyLevel } from './types';
 
 // Lazy load do TipTap (~100KB) — carrega apenas quando o formulário é aberto.
 // O ssr: false também elimina o erro "SSR has been detected" do TipTap.
@@ -31,6 +32,8 @@ interface OptionState {
 interface Props {
   tenant: string;
   subjects: Subject[];
+  examBoards: ExamBoard[];
+  institutions: Institution[];
   initialData?: QuestionRow;
   onSuccess?: () => void;
   onCancel?: () => void;
@@ -66,7 +69,7 @@ function buildOptionStates(options: QuestionOption[]): OptionState[] {
 const emptyOptions = (): OptionState[] =>
   OPTION_LABELS.map(() => ({ text: '', comment: '' }));
 
-export function QuestionForm({ tenant, subjects, initialData, onSuccess, onCancel }: Props) {
+export function QuestionForm({ tenant, subjects, examBoards, institutions, initialData, onSuccess, onCancel }: Props) {
   const supabase = createClient();
   const isEditing = !!initialData?.id;
 
@@ -76,8 +79,8 @@ export function QuestionForm({ tenant, subjects, initialData, onSuccess, onCance
     resolveInitialSubcategories(initialData)
   );
   const [year, setYear] = useState(initialData?.year?.toString() ?? '');
-  const [examBoard, setExamBoard] = useState(initialData?.exam_board ?? '');
-  const [institution, setInstitution] = useState(initialData?.institution ?? '');
+  const [examBoardId, setExamBoardId] = useState(initialData?.exam_board_id ?? '');
+  const [institutionId, setInstitutionId] = useState(initialData?.institution_id ?? '');
   const [examName, setExamName] = useState(initialData?.exam_name ?? '');
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(
     initialData?.difficulty ?? 'medium'
@@ -131,8 +134,8 @@ export function QuestionForm({ tenant, subjects, initialData, onSuccess, onCance
       // Limpar coluna legada VARCHAR ao editar (migration 00004 → deprecated)
       subcategory: null,
       year: year ? parseInt(year, 10) : null,
-      exam_board: examBoard.trim() || null,
-      institution: institution.trim() || null,
+      exam_board_id: examBoardId || null,
+      institution_id: institutionId || null,
       exam_name: examName.trim() || null,
     };
 
@@ -187,8 +190,8 @@ export function QuestionForm({ tenant, subjects, initialData, onSuccess, onCance
       setSubjectId('');
       setSubcategories([]);
       setYear('');
-      setExamBoard('');
-      setInstitution('');
+      setExamBoardId('');
+      setInstitutionId('');
       setExamName('');
       setDifficulty('medium');
       setOptions(emptyOptions());
@@ -265,22 +268,24 @@ export function QuestionForm({ tenant, subjects, initialData, onSuccess, onCance
             placeholder="Ex: 2024"
           />
 
-          <SmartField
-            tenant={tenant}
-            field="exam_board"
+          <DomainSelectField
+            table="exam_boards"
             label="Banca"
-            value={examBoard}
-            onChange={setExamBoard}
             placeholder="Ex: VUNESP, FUVEST, Revalida"
+            tenant={tenant}
+            items={examBoards}
+            value={examBoardId}
+            onChange={setExamBoardId}
           />
 
-          <SmartField
-            tenant={tenant}
-            field="institution"
+          <DomainSelectField
+            table="institutions"
             label="Órgão / Instituição"
-            value={institution}
-            onChange={setInstitution}
             placeholder="Ex: USP, CFM, MEC"
+            tenant={tenant}
+            items={institutions}
+            value={institutionId}
+            onChange={setInstitutionId}
           />
 
           <SmartField
@@ -440,8 +445,8 @@ export function QuestionForm({ tenant, subjects, initialData, onSuccess, onCance
                 setSubjectId('');
                 setSubcategories([]);
                 setYear('');
-                setExamBoard('');
-                setInstitution('');
+                setExamBoardId('');
+                setInstitutionId('');
                 setExamName('');
                 setDifficulty('medium');
                 setOptions(emptyOptions());

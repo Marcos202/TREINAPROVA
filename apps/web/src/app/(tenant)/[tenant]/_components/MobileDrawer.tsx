@@ -161,7 +161,8 @@ export default function MobileDrawer({ tenant, tenantLabel, theme, userName, use
                         const isActive =
                             item.path === ''
                                 ? pathname === `/${tenant}` || pathname === `/${tenant}/`
-                                : pathname.startsWith(`/${tenant}${item.path}`);
+                                : pathname.startsWith(`/${tenant}${item.path}`) ||
+                                  (item.path === '/questoes' && pathname.startsWith(`/${tenant}/treino`));
 
                         return (
                             <a

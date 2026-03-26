@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { VALID_TENANTS, TENANT_LABELS } from '@/config/tenants';
 import { createClient } from '@/lib/supabase/server';
-import type { Subject } from './_components/types';
+import type { Subject, ExamBoard, Institution } from './_components/types';
 import { QuestionManager } from './_components/QuestionManager';
 
 interface Props {
@@ -22,10 +22,20 @@ export default async function AdminQuestoesTenantPage({ params }: Props) {
   const label = TENANT_LABELS[tenant] ?? tenant;
   const supabase = await createClient();
 
-  // Fetch subjects and question count in parallel
-  const [subjectsResult, countResult] = await Promise.all([
+  // Fetch subjects, exam_boards, institutions, and question count in parallel
+  const [subjectsResult, examBoardsResult, institutionsResult, countResult] = await Promise.all([
     supabase
       .from('subjects')
+      .select('id, name, tenant_id, created_at')
+      .eq('tenant_id', tenant)
+      .order('name'),
+    supabase
+      .from('exam_boards')
+      .select('id, name, tenant_id, created_at')
+      .eq('tenant_id', tenant)
+      .order('name'),
+    supabase
+      .from('institutions')
       .select('id, name, tenant_id, created_at')
       .eq('tenant_id', tenant)
       .order('name'),
@@ -36,6 +46,8 @@ export default async function AdminQuestoesTenantPage({ params }: Props) {
   ]);
 
   const subjects = (subjectsResult.data ?? []) as Subject[];
+  const examBoards = (examBoardsResult.data ?? []) as ExamBoard[];
+  const institutions = (institutionsResult.data ?? []) as Institution[];
   const questionCount = countResult.count ?? 0;
 
   return (
@@ -64,6 +76,8 @@ export default async function AdminQuestoesTenantPage({ params }: Props) {
         tenant={tenant}
         tenantLabel={label}
         subjects={subjects}
+        examBoards={examBoards}
+        institutions={institutions}
       />
     </div>
   );
