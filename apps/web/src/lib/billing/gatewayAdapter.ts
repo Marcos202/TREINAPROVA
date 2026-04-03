@@ -38,6 +38,7 @@ export interface PixParams {
   email:          string;
   fullName:       string;
   document:       string;
+  phone?:         string;   // optional — used by Asaas customer creation
   amount:         number;
   description:    string;
   externalRef:    string;
@@ -160,13 +161,15 @@ async function chargeAsaas(
       name:     params.fullName,
       cpfCnpj: params.document.replace(/\D/g, ''),
       email:    params.email,
-      phone:    params.phone,
+      phone:    params.phone.replace(/\D/g, ''),
       externalReference: params.externalRef,
     }),
   });
   const customer = await customerRes.json();
   if (!customerRes.ok) {
-    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: 'Erro ao registrar cliente.' };
+    console.error('[asaas][chargeCard] customer creation failed:', JSON.stringify(customer));
+    const msg = customer?.errors?.[0]?.description ?? customer?.error ?? 'Erro ao registrar cliente.';
+    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: msg };
   }
 
   // 2) Create credit card charge
@@ -218,11 +221,15 @@ async function createAsaasPixCharge(
       name:     params.fullName,
       cpfCnpj: params.document.replace(/\D/g, ''),
       email:    params.email,
+      phone:    params.phone?.replace(/\D/g, '') ?? undefined,
+      externalReference: params.externalRef,
     }),
   });
   const customer = await customerRes.json();
   if (!customerRes.ok) {
-    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: 'Erro ao registrar cliente.' };
+    console.error('[asaas][createPix] customer creation failed:', JSON.stringify(customer));
+    const msg = customer?.errors?.[0]?.description ?? customer?.error ?? 'Erro ao registrar cliente.';
+    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: msg };
   }
 
   const chargeRes = await fetch(`${ASAAS_BASE}/payments`, {
@@ -240,7 +247,9 @@ async function createAsaasPixCharge(
   const charge = await chargeRes.json();
 
   if (!chargeRes.ok) {
-    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: 'Erro ao gerar cobrança PIX.' };
+    console.error('[asaas][createPix] charge creation failed:', JSON.stringify(charge));
+    const msg = charge?.errors?.[0]?.description ?? charge?.error ?? 'Erro ao gerar cobrança PIX.';
+    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: msg };
   }
 
   // Fetch PIX QR code
@@ -253,6 +262,68 @@ async function createAsaasPixCharge(
     status: 'pending',
     pixQrCode:    qr.encodedImage ?? undefined,
     pixCopyPaste: qr.payload ?? undefined,
+  };
+}
+
+async function createAsaasBoletoCharge(
+  secretKey: string,
+  params: PixParams,
+): Promise<GatewayChargeResult> {
+  const headers = {
+    'Content-Type': 'application/json',
+    'access_token': secretKey,
+  };
+
+  // 1) Upsert customer
+  const customerRes = await fetch(`${ASAAS_BASE}/customers`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      name:     params.fullName,
+      cpfCnpj: params.document.replace(/\D/g, ''),
+      email:    params.email,
+      phone:    params.phone?.replace(/\D/g, '') ?? undefined,
+      externalReference: params.externalRef,
+    }),
+  });
+  const customer = await customerRes.json();
+  if (!customerRes.ok) {
+    console.error('[asaas][createBoleto] customer creation failed:', JSON.stringify(customer));
+    const msg = customer?.errors?.[0]?.description ?? customer?.error ?? 'Erro ao registrar cliente.';
+    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: msg };
+  }
+
+  // 2) Create boleto charge (due date = 3 business days)
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + 3);
+  const dueDateStr = dueDate.toISOString().split('T')[0];
+
+  const chargeRes = await fetch(`${ASAAS_BASE}/payments`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      customer:          customer.id,
+      billingType:       'BOLETO',
+      value:             params.amount / 100,
+      dueDate:           dueDateStr,
+      description:       params.description,
+      externalReference: params.externalRef,
+    }),
+  });
+  const charge = await chargeRes.json();
+
+  if (!chargeRes.ok) {
+    console.error('[asaas][createBoleto] charge creation failed:', JSON.stringify(charge));
+    const msg = charge?.errors?.[0]?.description ?? charge?.error ?? 'Erro ao gerar boleto.';
+    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: msg };
+  }
+
+  return {
+    success: true,
+    gatewayChargeId: charge.id,
+    status: 'pending',
+    boletoUrl:     charge.bankSlipUrl ?? undefined,
+    boletoBarcode: charge.identificationField ?? undefined,
   };
 }
 
@@ -379,4 +450,17 @@ export async function gatewayCreatePix(
   if (gateway.name === 'asaas')       return createAsaasPixCharge(gateway.secretKey, params);
   if (gateway.name === 'mercadopago') return createMPPixCharge(gateway.secretKey, params);
   return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: 'Gateway desconhecido.' };
+}
+
+export async function gatewayCreateBoleto(
+  gateway: ActiveGateway,
+  params: PixParams,
+): Promise<GatewayChargeResult> {
+  if (gateway.name === 'asaas') return createAsaasBoletoCharge(gateway.secretKey, params);
+  return {
+    success: false,
+    gatewayChargeId: '',
+    status: 'failed',
+    errorMessage: 'Boleto não disponível com o gateway atual. Use Cartão ou PIX.',
+  };
 }

@@ -42,9 +42,6 @@ export default function CheckoutOrchestrator({
   const router      = useRouter();
   const cardRef     = useRef<GatewayCardRef | null>(null);
   const [busy, setBusy] = useState(false);
-  const [pixPending, setPixPending] = useState<{
-    qrCode?: string; copyPaste?: string;
-  } | null>(null);
 
   const { register, handleSubmit, control, setValue, formState: { errors } } = useForm<CheckoutFormInput>({
     resolver: zodResolver(CheckoutFormSchema),
@@ -92,10 +89,6 @@ export default function CheckoutOrchestrator({
         toast.error(result.error);
         return;
       }
-      if (result.pending && (result.pixQrCode || result.pixCopyPaste)) {
-        setPixPending({ qrCode: result.pixQrCode, copyPaste: result.pixCopyPaste });
-        return;
-      }
       if (result.redirectTo) {
         router.push(result.redirectTo);
       }
@@ -104,59 +97,6 @@ export default function CheckoutOrchestrator({
     } finally {
       setBusy(false);
     }
-  }
-
-  // ── PIX pending screen ────────────────────────────────────
-  if (pixPending) {
-    return (
-      <div className="max-w-md mx-auto px-4 py-10 space-y-5 text-center">
-        <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center bg-teal-500">
-          <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path d="m3 8 4-4 4 4" /><path d="M7 4v16" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-bold text-slate-900">Aguardando pagamento PIX</h2>
-        <p className="text-sm text-slate-500 leading-relaxed">
-          Escaneie o QR Code abaixo ou copie o código para pagar. O acesso PRO será
-          liberado automaticamente após a confirmação.
-        </p>
-
-        {pixPending.qrCode && (
-          <img
-            src={`data:image/png;base64,${pixPending.qrCode}`}
-            alt="QR Code PIX"
-            className="w-52 h-52 mx-auto rounded-2xl border border-slate-200 p-2"
-          />
-        )}
-
-        {pixPending.copyPaste && (
-          <div className="space-y-2">
-            <p className="text-[12px] font-semibold text-slate-500 uppercase tracking-wide">PIX Copia e Cola</p>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 font-mono text-[11px] text-slate-600 break-all text-left">
-              {pixPending.copyPaste}
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(pixPending.copyPaste!);
-                toast.success('Código copiado!');
-              }}
-              className="w-full h-11 rounded-xl bg-teal-600 text-white text-[13px] font-bold hover:bg-teal-700 transition-colors"
-            >
-              Copiar código
-            </button>
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={() => router.push(`/${plan.vertical_id}`)}
-          className="text-[13px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition-colors"
-        >
-          Ir ao dashboard (acesso liberado após pagamento)
-        </button>
-      </div>
-    );
   }
 
   const gatewayLabel =
