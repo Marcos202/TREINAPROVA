@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import type { AuthChangeEvent } from '@supabase/supabase-js'
 import { createClient, resetClient } from '@/lib/supabase/client'
 
 /**
@@ -23,7 +24,7 @@ export function SupabaseAuthGuard() {
     const supabase = createClient()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event) => {
+      async (event: AuthChangeEvent) => {
         if (event === 'SIGNED_OUT' && !isClearing.current) {
           isClearing.current = true
           // scope: 'local' — limpa apenas cookies/storage locais,
