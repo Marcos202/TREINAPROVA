@@ -18,14 +18,24 @@ import { handleBillingEvent, type BillingEvent, type BillingEventType } from '@/
 // ── Asaas event → BillingEventType mapping ────────────────────
 
 const EVENT_MAP: Record<string, BillingEventType> = {
-  PAYMENT_RECEIVED:   'subscription.activated',
-  PAYMENT_CONFIRMED:  'subscription.activated',
-  PAYMENT_OVERDUE:    'subscription.expired',
-  PAYMENT_DELETED:    'subscription.expired',
-  PAYMENT_REFUNDED:   'subscription.expired',
-  PAYMENT_CHARGEBACK: 'subscription.expired',
+  // Cobrança (entidade Payment)
+  PAYMENT_RECEIVED:               'subscription.activated',
+  PAYMENT_CONFIRMED:              'subscription.activated',
+  PAYMENT_OVERDUE:                'subscription.expired',
+  PAYMENT_DELETED:                'subscription.expired',
+  PAYMENT_REFUNDED:               'subscription.expired',
+  PAYMENT_CHARGEBACK:             'subscription.expired',
   PAYMENT_AWAITING_RISK_ANALYSIS: 'subscription.pending',
-  PAYMENT_CREATED:    'subscription.pending',
+  PAYMENT_CREATED:                'subscription.pending',
+
+  // Assinatura (entidade Subscription)
+  // SUBSCRIPTION_CREATED: assinatura registrada, aguarda 1º pagamento
+  SUBSCRIPTION_CREATED:           'subscription.pending',
+  // SUBSCRIPTION_RENEWED: ciclo renovado com pagamento confirmado
+  SUBSCRIPTION_RENEWED:           'subscription.activated',
+  // SUBSCRIPTION_DELETED: cancelada pelo cliente ou por inadimplência
+  // Mapeado para expired pois handleBillingEvent revoga o acesso PRO
+  SUBSCRIPTION_DELETED:           'subscription.expired',
 };
 
 // ── Constant-time string comparison (prevents timing attacks) ──
@@ -81,12 +91,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   // 3) Extract event metadata ──────────────────────────────────
-  const eventType   = (body.event as string | undefined) ?? '';
-  const payment     = (body.payment as Record<string, unknown> | undefined) ?? {};
-  const chargeId    = (payment.id as string | undefined) ?? String(body.id ?? '');
-  const externalRef = (payment.externalReference as string | undefined) ?? undefined;
+  const eventType = (body.event as string | undefined) ?? '';
 
-  // Use payment ID + event type as idempotency key
+  // Asaas sends different root keys depending on entity type:
+  //   PAYMENT_*      → body.payment  (charge object)
+  //   SUBSCRIPTION_* → body.subscription (subscription object)
+  const isSubscriptionEvent = eventType.startsWith('SUBSCRIPTION_');
+  const entity = isSubscriptionEvent
+    ? ((body.subscription as Record<string, unknown> | undefined) ?? {})
+    : ((body.payment      as Record<string, unknown> | undefined) ?? {});
+
+  const chargeId    = (entity.id as string | undefined) ?? String(body.id ?? '');
+  const externalRef = (entity.externalReference as string | undefined) ?? undefined;
+
+  // Use entity ID + event type as idempotency key
   const gatewayEventId = `${eventType}:${chargeId}`;
 
   // 4) Idempotent insert into billing_webhook_events ──────────
