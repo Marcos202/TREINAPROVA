@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -11,25 +11,34 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Ref síncrono — previne múltiplas requisições mesmo antes do React re-renderizar
+  const isSubmitting = useRef(false);
+
   const translateError = (message: string): string => {
-    const translations: Record<string, string> = {
-      "Invalid login credentials": "E-mail ou senha incorretos.",
-      "Email not confirmed": "E-mail ainda não foi confirmado. Verifique sua caixa de entrada.",
-      "User already registered": "Este e-mail já possui uma conta cadastrada.",
+    const map: Record<string, string> = {
+      "Invalid login credentials":            "E-mail ou senha incorretos.",
+      "Email not confirmed":                  "E-mail não confirmado. Verifique sua caixa de entrada.",
+      "User already registered":              "Este e-mail já possui conta cadastrada.",
       "Password should be at least 6 characters": "A senha deve ter no mínimo 6 caracteres.",
       "Unable to validate email address: invalid format": "Formato de e-mail inválido.",
-      "Signup requires a valid password": "É necessário informar uma senha válida.",
-      "Request rate limit reached": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
-      "over_email_send_rate_limit": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
+      "Signup requires a valid password":     "Informe uma senha válida.",
+      "Request rate limit reached":           "Muitas tentativas recentes. Aguarde 1 hora e tente novamente, ou use outra rede.",
+      "over_email_send_rate_limit":           "Limite de e-mails atingido. Aguarde e tente novamente.",
+      "Too many requests":                    "Muitas tentativas. Aguarde alguns minutos.",
     };
-    return translations[message] || message;
+    return map[message] ?? message;
   };
 
   const handleSubmit = async (e?: React.MouseEvent | React.FormEvent) => {
     e?.preventDefault();
 
+    // Guarda síncrono — impede duplo clique antes do React re-renderizar
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
+
     if (!isLoginMode && !fullName.trim()) {
       setErrorMsg("O nome completo é obrigatório.");
+      isSubmitting.current = false;
       return;
     }
 
@@ -44,6 +53,7 @@ export default function LoginPage() {
         if (error) {
           setErrorMsg(translateError(error.message));
           setIsLoading(false);
+          isSubmitting.current = false;
           return;
         }
       } else {
@@ -55,15 +65,18 @@ export default function LoginPage() {
         if (error) {
           setErrorMsg(translateError(error.message));
           setIsLoading(false);
+          isSubmitting.current = false;
           return;
         }
       }
 
-      window.location.replace('/aluno');
+      // Sucesso — navegação completa para /aluno
+      window.location.replace("/aluno");
     } catch (ex: unknown) {
-      const msg = ex instanceof Error ? ex.message : 'Erro inesperado.';
+      const msg = ex instanceof Error ? ex.message : "Erro inesperado. Tente novamente.";
       setErrorMsg(msg);
       setIsLoading(false);
+      isSubmitting.current = false;
     }
   };
 
@@ -89,7 +102,7 @@ export default function LoginPage() {
 
         <div className="border border-slate-200 rounded-lg p-8 bg-white">
           {errorMsg && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
+            <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-md mb-4 text-sm leading-relaxed">
               {errorMsg}
             </div>
           )}
@@ -121,6 +134,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="voce@exemplo.com"
               required
+              autoComplete="email"
               className="w-full px-3 py-2 text-sm rounded-md border border-slate-200 bg-white text-slate-900 outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all placeholder:text-slate-400"
             />
           </div>
@@ -136,6 +150,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
+              autoComplete={isLoginMode ? "current-password" : "new-password"}
               className="w-full px-3 py-2 text-sm rounded-md border border-slate-200 bg-white text-slate-900 outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all placeholder:text-slate-400"
             />
           </div>
