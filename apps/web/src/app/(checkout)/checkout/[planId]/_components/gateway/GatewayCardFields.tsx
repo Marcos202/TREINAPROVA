@@ -27,6 +27,8 @@ interface GatewayCardFieldsProps {
   onCardChange: (info: {
     number?:  string;
     expiry?:  string;
+    name?:    string;
+    cvc?:     string;
     last4?:   string;
     brand?:   string;
     focused?: Focused;

@@ -164,8 +164,9 @@ export default function CheckoutOrchestrator({
     gateway === 'asaas' ? 'Asaas' :
     gateway === 'mercadopago' ? 'Mercado Pago' : 'Gateway';
 
+  void gatewayLabel; // available for other uses if needed
   const trustItems = [
-    { Icon: ShieldCheck, text: `Pagamento 100% seguro via ${gatewayLabel}`,  color: 'text-green-600' },
+    { Icon: ShieldCheck, text: 'Pagamento 100% seguro',               color: 'text-green-600' },
     { Icon: Zap,         text: 'Acesso imediato após a confirmação',          color: 'text-blue-600'  },
     { Icon: RotateCcw,   text: 'Cancele quando quiser',                       color: 'text-amber-600' },
     { Icon: Headphones,  text: 'Suporte 24 horas',                            color: 'text-purple-600'},

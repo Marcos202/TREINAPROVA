@@ -55,10 +55,12 @@ export default function PaymentTabs({
   setValue,
   cardFieldRef,
 }: PaymentTabsProps) {
-  const [activeTab,    setActiveTab]    = useState<PaymentMethod>('card');
-  const [cardNumber,   setCardNumber]   = useState('');
-  const [cardExpiry,   setCardExpiry]   = useState('');
-  const [cardFocused,  setCardFocused]  = useState<Focused>('');
+  const [activeTab,   setActiveTab]  = useState<PaymentMethod>('card');
+  const [cardNumber,  setCardNumber]  = useState('');
+  const [cardExpiry,  setCardExpiry]  = useState('');
+  const [cardName,    setCardName]    = useState('');
+  const [cardCvc,     setCardCvc]     = useState('');
+  const [cardFocused, setCardFocused] = useState<Focused>('');
 
   const isStripeUnsupported = (m: PaymentMethod) =>
     gateway === 'stripe' && (m === 'pix' || m === 'boleto');
@@ -138,9 +140,9 @@ export default function PaymentTabs({
           <div className="flex justify-center">
             <ReactCreditCards
               number={cardNumber}
-              name={holderName.toUpperCase() || 'NOME DO TITULAR'}
+              name={cardName || holderName.toUpperCase() || 'NOME DO TITULAR'}
               expiry={cardExpiry}
-              cvc="•••"
+              cvc={cardCvc || '•••'}
               focused={cardFocused}
               placeholders={{ name: 'NOME DO TITULAR' }}
               locale={{ valid: 'Válido até' }}
@@ -167,11 +169,11 @@ export default function PaymentTabs({
               gateway={gateway}
               pubKey={gatewayPubKey}
               amount={planAmount}
-              onCardChange={({ number, expiry, last4, focused }) => {
+              onCardChange={({ number, expiry, name, cvc, focused }) => {
                 if (number  !== undefined) setCardNumber(number);
                 if (expiry  !== undefined) setCardExpiry(expiry);
-                // last4 available if needed for other purposes
-                void last4;
+                if (name    !== undefined) setCardName(name.toUpperCase());
+                if (cvc     !== undefined) setCardCvc(cvc);
                 if (focused !== undefined) setCardFocused(focused);
               }}
               innerRef={cardFieldRef}
