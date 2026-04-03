@@ -49,7 +49,7 @@ export type CheckoutFormInput = z.infer<typeof CheckoutFormSchema>;
 // ── Error messages (rate limiting) ───────────────────────────
 
 export const RATE_LIMIT_MESSAGES: Record<string, string> = {
-  rate_limit:         'Muitas tentativas. Aguarde 15 minutos e tente novamente.',
-  too_many_declines:  'Cartão recusado repetidamente. Aguarde 24 horas ou use outro método.',
-  ip_blocked:         'Muitas tentativas a partir deste dispositivo. Aguarde 1 hora.',
+  rate_limit:        'Excesso de tentativas de pagamento. Por segurança, aguarde 15 minutos ou use outro método.',
+  too_many_declines: 'Muitas tentativas malsucedidas. Por segurança, aguarde 24 horas ou use outro método de pagamento.',
+  ip_blocked:        'Muitas tentativas a partir deste dispositivo. Por segurança, aguarde 1 hora.',
 };
