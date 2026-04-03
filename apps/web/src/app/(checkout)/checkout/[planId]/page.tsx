@@ -33,7 +33,7 @@ export default async function CheckoutPage({ params }: PageProps) {
   // ── User profile (pre-fill form) ───────────────────────────
   const { data: profile } = await service
     .from('profiles')
-    .select('full_name, subscription_status')
+    .select('full_name, phone, document, subscription_status')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -96,6 +96,8 @@ export default async function CheckoutPage({ params }: PageProps) {
         }}
         userEmail={user.email ?? ''}
         userName={profile?.full_name ?? user.user_metadata?.full_name ?? ''}
+        userPhone={profile?.phone ?? ''}
+        userDocument={profile?.document ?? ''}
         gateway={gateway}
         gatewayPubKey={gatewayPubKey}
       />

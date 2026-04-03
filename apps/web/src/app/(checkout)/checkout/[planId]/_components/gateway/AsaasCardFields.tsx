@@ -14,14 +14,21 @@
  * For PCI compliance, the SDK handles tokenization internally.
  */
 
-import { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
+import { useEffect, useImperativeHandle, forwardRef, useState } from 'react';
 import Script from 'next/script';
 import { IMaskInput } from 'react-imask';
 import type { GatewayCardRef } from './StripeCardFields';
+import type { Focused } from 'react-credit-cards-2';
 
 interface AsaasCardFieldsProps {
   pubKey:       string;
-  onCardChange: (info: { brand?: string; last4?: string; expiry?: string; cvcFocused?: boolean; complete: boolean }) => void;
+  onCardChange: (info: {
+    number?:   string;
+    expiry?:   string;
+    last4?:    string;
+    focused?:  Focused;
+    complete:  boolean;
+  }) => void;
   innerRef:     React.Ref<GatewayCardRef>;
 }
 
@@ -34,7 +41,7 @@ declare global {
 
 const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
   pubKey: string;
-  onCardChange: (info: { brand?: string; last4?: string; expiry?: string; cvcFocused?: boolean; complete: boolean }) => void;
+  onCardChange: AsaasCardFieldsProps['onCardChange'];
 }>(({ pubKey, onCardChange }, ref) => {
   const [number,   setNumber]   = useState('');
   const [expiry,   setExpiry]   = useState('');
@@ -43,10 +50,10 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
   const [sdkReady, setSdkReady] = useState(false);
 
   useEffect(() => {
-    // Check if SDK already loaded (Script tag may fire before component mounts)
     if (window.AsaasCardTokenizer) setSdkReady(true);
   }, []);
 
+  // Emit value updates whenever any field changes
   useEffect(() => {
     const cleaned = number.replace(/\s/g, '');
     const allFilled = cleaned.length >= 13
@@ -54,7 +61,12 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
       && cvc.length >= 3
       && holder.trim().length >= 3;
     const last4 = cleaned.length >= 4 ? cleaned.slice(-4) : undefined;
-    onCardChange({ last4, expiry: expiry || undefined, complete: allFilled });
+    onCardChange({
+      number,
+      expiry: expiry || undefined,
+      last4,
+      complete: allFilled,
+    });
   }, [number, expiry, cvc, holder, onCardChange]);
 
   useImperativeHandle(ref, () => ({
@@ -81,6 +93,9 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
   const inputClass = 'h-11 px-3.5 w-full bg-white border border-slate-200 rounded-xl text-[14px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all';
   const labelClass = 'block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5';
 
+  const emitFocus = (focused: Focused) => onCardChange({ complete: false, focused });
+  const emitBlur  = () => onCardChange({ complete: false, focused: '' });
+
   return (
     <div className="space-y-3">
       <div>
@@ -89,6 +104,8 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
           mask="0000 0000 0000 0000 000"
           value={number}
           onAccept={(v: string) => setNumber(v)}
+          onFocus={() => emitFocus('number')}
+          onBlur={emitBlur}
           placeholder="1234 5678 9012 3456"
           className={inputClass}
         />
@@ -100,6 +117,8 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
             mask="00/00"
             value={expiry}
             onAccept={(v: string) => setExpiry(v)}
+            onFocus={() => emitFocus('expiry')}
+            onBlur={emitBlur}
             placeholder="MM/AA"
             className={inputClass}
           />
@@ -110,8 +129,8 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
             mask="0000"
             value={cvc}
             onAccept={(v: string) => setCvc(v)}
-            onFocus={() => onCardChange({ complete: false, cvcFocused: true })}
-            onBlur={() => onCardChange({ complete: false, cvcFocused: false })}
+            onFocus={() => emitFocus('cvc')}
+            onBlur={emitBlur}
             placeholder="123"
             className={inputClass}
           />
@@ -123,6 +142,8 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
           type="text"
           value={holder}
           onChange={(e) => setHolder(e.target.value.toUpperCase())}
+          onFocus={() => emitFocus('name')}
+          onBlur={emitBlur}
           placeholder="NOME COMO ESTÁ NO CARTÃO"
           className={inputClass}
           autoComplete="cc-name"
@@ -134,7 +155,6 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
 AsaasCardFieldsInner.displayName = 'AsaasCardFieldsInner';
 
 export default function AsaasCardFields({ pubKey, onCardChange, innerRef }: AsaasCardFieldsProps) {
-  const [sdkLoaded, setSdkLoaded] = useState(false);
   const isDev = process.env.NEXT_PUBLIC_ASAAS_ENV === 'sandbox';
 
   return (
@@ -144,7 +164,6 @@ export default function AsaasCardFields({ pubKey, onCardChange, innerRef }: Asaa
           ? 'https://sandbox.asaas.com/assets/js/asaas.js'
           : 'https://www.asaas.com/assets/js/asaas.js'}
         strategy="lazyOnload"
-        onLoad={() => setSdkLoaded(true)}
       />
       <AsaasCardFieldsInner
         ref={innerRef}

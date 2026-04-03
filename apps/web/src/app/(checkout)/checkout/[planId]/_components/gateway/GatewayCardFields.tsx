@@ -11,6 +11,7 @@
 
 import dynamic from 'next/dynamic';
 import type { GatewayCardRef } from './StripeCardFields';
+import type { Focused } from 'react-credit-cards-2';
 
 // Lazy-load each gateway SDK — only one will be loaded at runtime
 const StripeCardFields     = dynamic(() => import('./StripeCardFields'),  { ssr: false });
@@ -23,7 +24,14 @@ interface GatewayCardFieldsProps {
   gateway:      'stripe' | 'asaas' | 'mercadopago' | null;
   pubKey:       string | null;
   amount:       number;   // BRL float — used by MP
-  onCardChange: (info: { brand?: string; last4?: string; expiry?: string; cvcFocused?: boolean; complete: boolean }) => void;
+  onCardChange: (info: {
+    number?:  string;
+    expiry?:  string;
+    last4?:   string;
+    brand?:   string;
+    focused?: Focused;
+    complete: boolean;
+  }) => void;
   innerRef:     React.Ref<GatewayCardRef>;
 }
 
