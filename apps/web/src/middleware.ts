@@ -24,12 +24,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Domínio do cookie — deve ser idêntico ao usado no browser client
-  // para que o Supabase SDK consiga ler/renovar o token sem mismatch
-  const hostname = request.headers.get('host') || '';
-  const isProd = !hostname.includes('localhost') && !hostname.includes('127.0.0.1');
-  const cookieDomain = isProd ? '.treinaprova.com' : undefined;
-
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -42,11 +36,8 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            // Forçar o mesmo domínio usado pelo browser client
-            // Sem isso, o cookie fica em app.treinaprova.com em vez de .treinaprova.com
-            const opts = { ...options, ...(cookieDomain ? { domain: cookieDomain } : {}) };
-            request.cookies.set({ name, value, ...opts });
-            supabaseResponse.cookies.set({ name, value, ...opts });
+            request.cookies.set({ name, value, ...options });
+            supabaseResponse.cookies.set({ name, value, ...options });
           });
         },
       },
