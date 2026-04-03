@@ -1,0 +1,4 @@
+src/app/(tenant)/[tenant]/treino/[session_id]/page.tsx(52,7): error TS2322: Type '{ id: any; text: any; options: any; correct_option: any; difficulty: any; general_explanation: any; year: any; exam_board_id: any; institution_id: any; subcategories: any; subjects: { name: any; }[]; exam_boards: { ...; }[]; institutions: { ...; }[]; }[]' is not assignable to type 'Question[]'.
+  Type '{ id: any; text: any; options: any; correct_option: any; difficulty: any; general_explanation: any; year: any; exam_board_id: any; institution_id: any; subcategories: any; subjects: { name: any; }[]; exam_boards: { ...; }[]; institutions: { ...; }[]; }' is not assignable to type 'Question'.
+    Types of property 'subjects' are incompatible.
+      Property 'name' is missing in type '{ name: any; }[]' but required in type '{ name: string; }'.

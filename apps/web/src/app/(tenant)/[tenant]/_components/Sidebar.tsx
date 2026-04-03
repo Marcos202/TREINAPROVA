@@ -58,6 +58,26 @@ function IconCommunity(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function IconPlan(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  );
+}
+
+function IconFlashcards(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 9h20" />
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M10 14h4" />
+    </svg>
+  );
+}
+
 function IconLogout(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -72,8 +92,10 @@ function IconLogout(props: React.SVGProps<SVGSVGElement>) {
 
 const NAV_ITEMS = [
   { label: 'Dashboard', path: '', icon: IconDashboard },
+  { label: 'Plano de Aprovação', path: '/plano', icon: IconPlan },
   { label: 'Banco de Questões', path: '/questoes', icon: IconQuestions },
   { label: 'Simulados', path: '/simulados', icon: IconExams },
+  { label: 'Flashcards', path: '/flashcards', icon: IconFlashcards },
   { label: 'Estatísticas', path: '/estatisticas', icon: IconStats },
   { label: 'Comunidade', path: '/comunidade', icon: IconCommunity },
 ];
@@ -119,10 +141,13 @@ export default function Sidebar({ tenant, tenantLabel }: SidebarProps) {
           </p>
           {NAV_ITEMS.map((item) => {
             const fullHref = `/${tenant}${item.path}`;
+            const itemHref = `/${tenant}${item.path}`;
             const isActive =
               item.path === ''
                 ? pathname === `/${tenant}` || pathname === `/${tenant}/`
-                : pathname.startsWith(`/${tenant}${item.path}`);
+                : pathname === itemHref ||
+                  pathname.startsWith(`${itemHref}/`) ||
+                  (item.path === '/questoes' && pathname.startsWith(`/${tenant}/treino`));
 
             const Icon = item.icon;
 
@@ -162,12 +187,13 @@ export default function Sidebar({ tenant, tenantLabel }: SidebarProps) {
             <p className="text-[11px] text-slate-500 leading-relaxed mb-3">
               Desbloqueie estatísticas avançadas e simulados infinitos.
             </p>
-            <button
-              className="w-full py-2 rounded-lg text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
+            <a
+              href={`/${tenant}/planos`}
+              className="block w-full py-2 rounded-lg text-[12px] font-semibold text-white text-center transition-opacity hover:opacity-90"
               style={{ background: theme.accentGradient }}
             >
               Fazer Upgrade
-            </button>
+            </a>
           </div>
         </div>
 

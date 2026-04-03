@@ -1,6 +1,6 @@
 // =============================================================================
-// database.types.ts — Sincronizado com migrations 00001–00005
-// Última atualização: migration 00005 (performance + sessions)
+// database.types.ts — Sincronizado com migrations 00001–00010
+// Última atualização: migration 00010 (taxonomia hierárquica — subcategories, exams_names)
 // =============================================================================
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
@@ -9,13 +9,21 @@ export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 // profiles
 // -----------------------------------------------------------------------------
 
+export type SubscriptionStatus = 'free' | 'pro' | 'pro_canceled' | 'past_due' | 'active';
+
 export interface Profile {
-  id: string;                        // UUID — espelha auth.users.id
+  id: string;                              // UUID — espelha auth.users.id
   email: string | null;
   full_name: string | null;
-  is_admin: boolean | null;          // migration 00003
-  subscription_status: string | null; // migration 00003: 'free' | 'active' | ...
+  is_admin: boolean | null;                // migration 00003
+  subscription_status: SubscriptionStatus | null; // migration 00003 + 00014
   updated_at: string | null;
+  /** ISO 8601 — null for free or active without set expiry — migration 00014 */
+  subscription_expires_at: string | null;
+  /** Counter reset daily — O(1) quota check — migration 00014 */
+  daily_question_count: number;
+  /** Date string (YYYY-MM-DD) — migration 00014 */
+  daily_question_reset_at: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -30,98 +38,134 @@ export interface Subject {
 }
 
 // -----------------------------------------------------------------------------
+// subcategories — migration 00010
+// -----------------------------------------------------------------------------
+
+export interface Subcategory {
+  id: string;
+  tenant_id: string;
+  subject_id: string; // UUID → subjects.id
+  name: string;
+  created_at: string;
+}
+
+// -----------------------------------------------------------------------------
+// exam_boards (Bancas) — migration 00009
+// -----------------------------------------------------------------------------
+
+export interface ExamBoard {
+  id: string;
+  tenant_id: string;
+  name: string;
+  created_at: string;
+}
+
+// -----------------------------------------------------------------------------
+// institutions (Órgãos / Instituições) — migration 00009
+// -----------------------------------------------------------------------------
+
+export interface Institution {
+  id: string;
+  tenant_id: string;
+  name: string;
+  created_at: string;
+}
+
+// -----------------------------------------------------------------------------
+// exams_names (Provas) — migration 00010
+// -----------------------------------------------------------------------------
+
+export interface ExamName {
+  id: string;
+  tenant_id: string;
+  name: string;
+  year: number | null;
+  created_at: string;
+}
+
+// -----------------------------------------------------------------------------
 // questions
 // -----------------------------------------------------------------------------
 
-/**
- * Uma alternativa de resposta, armazenada no array JSONB `options`.
- * Estrutura: [{ id: 'A', text: '...', comment: '...' }, ...]
- */
 export interface QuestionOption {
   id: string;       // 'A' | 'B' | 'C' | 'D' | 'E'
   text: string;
-  comment?: string; // Comentário/explicação desta alternativa (opcional)
+  comment?: string;
 }
 
 export interface Question {
-  id: string;            // UUID
-  seq_id: number;        // BIGSERIAL — migration 00005: chave para range-sampling eficiente
+  id: string;
+  seq_id: number;        // BIGSERIAL — migration 00005
   tenant_id: string;
   subject_id: string;    // UUID → subjects.id
   text: string;
-
-  /** Array JSONB de alternativas. Substituiu o antigo Record<string, string>. */
   options: QuestionOption[];
+  correct_option: string;
 
-  correct_option: string;   // e.g. 'A'
+  /** ENUM question_difficulty — migration 00009. */
   difficulty: DifficultyLevel;
 
-  // --- Metadados avançados (migration 00004) ---
   general_explanation: string | null;
 
-  /**
-   * Array JSONB de subcategorias — migration 00005.
-   * Substituiu a coluna subcategory VARCHAR (texto contendo JSON).
-   * Indexado via GIN para queries: WHERE subcategories @> '["Cardiologia"]'
-   */
-  subcategories: string[];
+  /** FK para subcategories.id — migration 00010. Substituiu subcategories JSONB + subcategory VARCHAR. */
+  subcategory_id: string | null;
 
-  /** Coluna legada — mantida até validação da migração de dados. @deprecated use subcategories */
-  subcategory?: string | null;
+  /** FK para exam_boards.id — migration 00009. */
+  exam_board_id: string | null;
 
-  year: number | null;
-  exam_board: string | null;    // Banca
-  institution: string | null;   // Órgão / Instituição
-  exam_name: string | null;     // Nome da prova
+  /** FK para institutions.id — migration 00009. */
+  institution_id: string | null;
+
+  /** FK para exams_names.id — migration 00010. Substituiu exam_name VARCHAR + year INT. */
+  exam_name_id: string | null;
 
   /** URL pública da imagem no Cloudflare R2 — migration 00007. */
   image_url: string | null;
 
-  created_at: string; // ISO 8601
+  /** Flashcard pré-processado — migration 00012. */
+  flashcard_front: string | null;
+  flashcard_back: string | null;
+  flashcard_hint: string | null;
+
+  /** Rastreabilidade da IA — migration 00012. */
+  ai_filled_fields: string[] | null;
+  ai_confidence: Record<string, number> | null;
+  ai_engine_version: number | null;
+  operator_hint: string | null;
+
+  created_at: string;
 }
 
 // -----------------------------------------------------------------------------
 // user_question_history — migration 00005
-// Rastreamento de respostas por usuário. PK composta: (user_id, question_id).
 // -----------------------------------------------------------------------------
 
 export interface UserQuestionHistory {
-  user_id: string;       // UUID → auth.users.id
-  question_id: string;   // UUID → questions.id
+  user_id: string;
+  question_id: string;
   tenant_id: string;
-  answered_at: string;   // ISO 8601
+  answered_at: string;
   is_correct: boolean | null;
-  time_spent_ms: number | null; // Tempo de resposta em milissegundos (analytics)
+  time_spent_ms: number | null;
 }
 
 // -----------------------------------------------------------------------------
 // question_sessions — migration 00005
-// Pool pré-computado de questões para entrega eficiente e sem repetição.
 // -----------------------------------------------------------------------------
 
 export interface QuestionSession {
-  id: string;             // UUID — PK da sessão
-  user_id: string;        // UUID → auth.users.id
+  id: string;
+  user_id: string;
   tenant_id: string;
-
-  /** Array ordenado de UUIDs de questões — o "pool" da sessão. */
   question_ids: string[];
-
-  current_index: number;  // Índice da próxima questão a ser entregue (0-based)
-  total: number;          // Tamanho total do pool
-
-  /**
-   * Snapshot dos filtros usados para construir o pool.
-   * Ex: { "difficulty": "medium", "subject_ids": ["uuid1", "uuid2"] }
-   */
+  current_index: number;
+  total: number;
   filters: Record<string, unknown>;
-
-  correct_count: number;  // Acertos acumulados na sessão
-  wrong_count: number;    // Erros acumulados na sessão
-
-  created_at: string;     // ISO 8601
-  expires_at: string;     // ISO 8601 — TTL padrão: 24h após criação
-  completed_at: string | null; // null enquanto em andamento
+  correct_count: number;
+  wrong_count: number;
+  created_at: string;
+  expires_at: string;
+  completed_at: string | null;
 }
 
 // -----------------------------------------------------------------------------
@@ -136,9 +180,103 @@ export interface Exam {
   created_at: string;
 }
 
+// -----------------------------------------------------------------------------
+// user_flashcards — migration 00013
+// -----------------------------------------------------------------------------
+
+export interface UserFlashcard {
+  id: string;
+  user_id: string;
+  tenant_id: string;
+  subject_id: string | null;
+  front: string;
+  back: string;
+  created_at: string;
+}
+
+export type FlashcardRating = 'again' | 'hard' | 'medium' | 'easy';
+
+// -----------------------------------------------------------------------------
+// user_flashcard_reviews — migration 00013 (SM-2 repetição espaçada)
+// -----------------------------------------------------------------------------
+
+export interface UserFlashcardReview {
+  id: string;
+  user_id: string;
+  tenant_id: string;
+  /** Questão oficial — mutuamente exclusivo com user_flashcard_id. */
+  question_id: string | null;
+  /** Card pessoal — mutuamente exclusivo com question_id. */
+  user_flashcard_id: string | null;
+  rating: FlashcardRating;
+  reviewed_at: string;
+  ease_factor: number;
+  interval_days: number;
+  /** ISO date string — próxima data de revisão. */
+  next_review: string;
+}
+
+// -----------------------------------------------------------------------------
+// payment_gateway_configs — migration 00014
+// -----------------------------------------------------------------------------
+
+export type GatewayName = 'stripe' | 'asaas' | 'mercadopago';
+
+export interface PaymentGatewayConfig {
+  id:                 string;
+  gateway_name:       GatewayName;
+  display_label:      string;
+  is_active:          boolean;
+  /** AES-256-GCM ciphertext — never expose to client */
+  secret_key_enc:     string | null;
+  pub_key_enc:        string | null;
+  webhook_secret_enc: string | null;
+  updated_at:         string;
+  updated_by:         string | null;
+}
+
+// -----------------------------------------------------------------------------
+// billing_subscriptions — migration 00014
+// -----------------------------------------------------------------------------
+
+export type BillingStatus = 'active' | 'canceled' | 'past_due' | 'expired';
+export type BillingPlan   = 'pro_monthly' | 'pro_annual';
+
+export interface BillingSubscription {
+  id:                      string;
+  user_id:                 string;
+  tenant_id:               string;
+  gateway:                 GatewayName;
+  gateway_customer_id:     string;
+  gateway_subscription_id: string | null;
+  gateway_payment_id:      string | null;
+  plan:                    BillingPlan;
+  status:                  BillingStatus;
+  current_period_start:    string | null;
+  current_period_end:      string | null;
+  canceled_at:             string | null;
+  created_at:              string;
+  updated_at:              string;
+}
+
+// -----------------------------------------------------------------------------
+// billing_webhook_events — migration 00014
+// -----------------------------------------------------------------------------
+
+export interface BillingWebhookEvent {
+  id:               string;
+  gateway:          GatewayName;
+  gateway_event_id: string;
+  event_type:       string;
+  raw_payload:      Record<string, unknown>;
+  processed:        boolean;
+  processed_at:     string | null;
+  error_message:    string | null;
+  received_at:      string;
+}
+
 // =============================================================================
 // Database — mapa completo de tabelas para o cliente Supabase tipado
-// Uso: createClient<Database>(url, key)
 // =============================================================================
 
 export interface Database {
@@ -153,36 +291,50 @@ export interface Database {
       subjects: {
         Row: Subject;
         Insert: Omit<Subject, 'id' | 'created_at'> & { id?: string; created_at?: string };
-        Update: Partial<Omit<Subject, 'id' | 'created_at'>> & { id?: string; created_at?: string };
+        Update: Partial<Omit<Subject, 'id' | 'created_at'>>;
+      };
+
+      subcategories: {
+        Row: Subcategory;
+        Insert: Omit<Subcategory, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Pick<Subcategory, 'name'>>;
+      };
+
+      exam_boards: {
+        Row: ExamBoard;
+        Insert: Omit<ExamBoard, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Pick<ExamBoard, 'name'>>;
+      };
+
+      institutions: {
+        Row: Institution;
+        Insert: Omit<Institution, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Pick<Institution, 'name'>>;
+      };
+
+      exams_names: {
+        Row: ExamName;
+        Insert: Omit<ExamName, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Pick<ExamName, 'name' | 'year'>>;
       };
 
       questions: {
         Row: Question;
-        /**
-         * seq_id é BIGSERIAL — gerado automaticamente pelo DB, nunca fornecido no Insert.
-         * subcategory (legada) é opcional no Insert.
-         */
-        Insert: Omit<Question, 'id' | 'seq_id' | 'created_at' | 'subcategory'> & {
+        Insert: Omit<Question, 'id' | 'seq_id' | 'created_at'> & {
           id?: string;
           created_at?: string;
-          subcategory?: string | null;
         };
         Update: Partial<Omit<Question, 'id' | 'seq_id' | 'created_at'>>;
       };
 
       user_question_history: {
         Row: UserQuestionHistory;
-        /** answered_at tem DEFAULT NOW() no DB — opcional no Insert */
         Insert: Omit<UserQuestionHistory, 'answered_at'> & { answered_at?: string };
         Update: Pick<UserQuestionHistory, 'is_correct' | 'time_spent_ms'>;
       };
 
       question_sessions: {
         Row: QuestionSession;
-        /**
-         * id, correct_count, wrong_count, created_at, expires_at têm defaults no DB.
-         * completed_at é null por padrão.
-         */
         Insert: Omit<QuestionSession, 'id' | 'correct_count' | 'wrong_count' | 'created_at' | 'expires_at' | 'completed_at'> & {
           id?: string;
           correct_count?: number;
@@ -197,12 +349,47 @@ export interface Database {
       exams: {
         Row: Exam;
         Insert: Omit<Exam, 'id' | 'created_at'> & { id?: string; created_at?: string };
-        Update: Partial<Omit<Exam, 'id' | 'created_at'>> & { id?: string; created_at?: string };
+        Update: Partial<Omit<Exam, 'id' | 'created_at'>>;
+      };
+
+      user_flashcards: {
+        Row: UserFlashcard;
+        Insert: Omit<UserFlashcard, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Pick<UserFlashcard, 'front' | 'back' | 'subject_id'>>;
+      };
+
+      user_flashcard_reviews: {
+        Row: UserFlashcardReview;
+        Insert: Omit<UserFlashcardReview, 'id' | 'reviewed_at'> & { id?: string; reviewed_at?: string };
+        Update: never;
+      };
+
+      payment_gateway_configs: {
+        Row: PaymentGatewayConfig;
+        Insert: Omit<PaymentGatewayConfig, 'id' | 'updated_at'> & { id?: string; updated_at?: string };
+        Update: Partial<Omit<PaymentGatewayConfig, 'id'>>;
+      };
+
+      billing_subscriptions: {
+        Row: BillingSubscription;
+        Insert: Omit<BillingSubscription, 'id' | 'created_at' | 'updated_at'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Pick<BillingSubscription,
+          'status' | 'current_period_start' | 'current_period_end' | 'canceled_at' | 'updated_at'
+        >>;
+      };
+
+      billing_webhook_events: {
+        Row: BillingWebhookEvent;
+        Insert: Omit<BillingWebhookEvent, 'id' | 'received_at'> & { id?: string; received_at?: string };
+        Update: Pick<BillingWebhookEvent, 'processed' | 'processed_at' | 'error_message'>;
       };
     };
 
     Views: {
-      /** View materializada — migration 00005. Contagem de questões por subject+difficulty. */
       subject_question_counts: {
         Row: {
           subject_id: string;
@@ -214,7 +401,6 @@ export interface Database {
     };
 
     Functions: {
-      /** Função SQL para construir pool balanceado — migration 00005. */
       build_balanced_question_pool: {
         Args: {
           p_tenant_id: string;
@@ -222,8 +408,28 @@ export interface Database {
           p_total: number;
           p_exclude_ids?: string[];
         };
-        Returns: string[]; // UUID[]
+        Returns: string[];
       };
+
+      /** Atomic gateway swap — migration 00014 */
+      set_active_gateway: {
+        Args: { p_gateway_name: GatewayName };
+        Returns: void;
+      };
+
+      /** O(1) daily question quota check-and-increment — migration 00014 */
+      check_and_increment_daily_quota: {
+        Args: { p_user_id: string };
+        Returns: Array<{
+          allowed:       boolean;
+          count_after:   number;
+          limit_reached: boolean;
+        }>;
+      };
+    };
+
+    Enums: {
+      question_difficulty: DifficultyLevel;
     };
   };
 }
