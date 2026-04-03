@@ -23,7 +23,7 @@ interface GatewayCardFieldsProps {
   gateway:      'stripe' | 'asaas' | 'mercadopago' | null;
   pubKey:       string | null;
   amount:       number;   // BRL float — used by MP
-  onCardChange: (info: { brand?: string; last4?: string; complete: boolean }) => void;
+  onCardChange: (info: { brand?: string; last4?: string; expiry?: string; cvcFocused?: boolean; complete: boolean }) => void;
   innerRef:     React.Ref<GatewayCardRef>;
 }
 

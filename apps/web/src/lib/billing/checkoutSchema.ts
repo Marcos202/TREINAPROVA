@@ -20,25 +20,14 @@ export const PersonalInfoSchema = z.object({
 
 // ── Email ─────────────────────────────────────────────────────
 
-export const EmailSchema = z
-  .object({
-    email:        z.string().email('E-mail inválido'),
-    emailConfirm: z.string().email('E-mail inválido'),
-  })
-  .refine((d) => d.email === d.emailConfirm, {
-    message: 'Os e-mails não conferem',
-    path: ['emailConfirm'],
-  });
+export const EmailSchema = z.object({
+  email: z.string().email('E-mail inválido'),
+});
 
 // ── Checkout (combined) ───────────────────────────────────────
 
-const EmailBaseSchema = z.object({
-  email:        z.string().email('E-mail inválido'),
-  emailConfirm: z.string().email('E-mail inválido'),
-});
-
 export const CheckoutFormSchema = PersonalInfoSchema
-  .merge(EmailBaseSchema)
+  .merge(EmailSchema)
   .extend({
     paymentMethod: z.enum(['card', 'pix', 'boleto']),
     gatewayToken:  z.string().optional(),
@@ -46,13 +35,6 @@ export const CheckoutFormSchema = PersonalInfoSchema
     installments:  z.number().int().min(1).max(12),
   })
   .superRefine((data, ctx) => {
-    if (data.email !== data.emailConfirm) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Os e-mails não conferem',
-        path: ['emailConfirm'],
-      });
-    }
     if (data.paymentMethod === 'card' && !data.gatewayToken) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

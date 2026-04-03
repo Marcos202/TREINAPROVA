@@ -43,15 +43,20 @@ export default async function CheckoutPage({ params }: PageProps) {
   // ── Active gateway + publishable key (safe to send to client) ──
   const { data: gw } = await service
     .from('payment_gateway_configs')
-    .select('gateway_name, pub_key_enc')
+    .select('gateway_name, pub_key_enc, secret_key_enc')
     .eq('is_active', true)
     .limit(1)
     .maybeSingle();
 
   let gatewayPubKey: string | null = null;
-  if (gw?.pub_key_enc) {
-    try { gatewayPubKey = decryptApiKey(gw.pub_key_enc); }
-    catch { gatewayPubKey = null; }
+  if (gw) {
+    // Asaas uses the API token (secret_key_enc) as its tokenization key
+    // when no separate pub_key_enc is configured.
+    const encKey = gw.pub_key_enc ?? (gw.gateway_name === 'asaas' ? gw.secret_key_enc : null);
+    if (encKey) {
+      try { gatewayPubKey = decryptApiKey(encKey); }
+      catch { gatewayPubKey = null; }
+    }
   }
 
   const gateway = (gw?.gateway_name ?? null) as 'stripe' | 'asaas' | 'mercadopago' | null;

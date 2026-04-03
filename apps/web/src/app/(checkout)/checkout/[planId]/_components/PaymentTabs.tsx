@@ -57,10 +57,11 @@ export default function PaymentTabs({
   setValue,
   cardFieldRef,
 }: PaymentTabsProps) {
-  const [activeTab, setActiveTab]   = useState<PaymentMethod>('card');
-  const [cardBrand, setCardBrand]   = useState<string | undefined>();
-  const [cardLast4, setCardLast4]   = useState<string | undefined>();
-  const [cvcFocused, setCvcFocused] = useState(false);
+  const [activeTab, setActiveTab]     = useState<PaymentMethod>('card');
+  const [cardBrand, setCardBrand]     = useState<string | undefined>();
+  const [cardLast4, setCardLast4]     = useState<string | undefined>();
+  const [cardExpiry, setCardExpiry]   = useState<string | undefined>();
+  const [cvcFocused, setCvcFocused]   = useState(false);
 
   const isStripeUnsupported = (m: PaymentMethod) =>
     gateway === 'stripe' && (m === 'pix' || m === 'boleto');
@@ -129,21 +130,32 @@ export default function PaymentTabs({
             holderName={holderName}
             brand={cardBrand}
             last4={cardLast4}
+            expiry={cardExpiry}
             isFlipped={cvcFocused}
           />
 
           {/* Gateway fields */}
           <div onFocus={(e) => {
+            // Stripe Elements iframe: detect CVC focus via data attribute
             const el = e.target as HTMLElement;
-            setCvcFocused(el.getAttribute('data-elements-stable-field-name') === 'cardCvc');
+            if (el.getAttribute('data-elements-stable-field-name') === 'cardCvc') {
+              setCvcFocused(true);
+            }
+          }} onBlur={(e) => {
+            const el = e.target as HTMLElement;
+            if (el.getAttribute('data-elements-stable-field-name') === 'cardCvc') {
+              setCvcFocused(false);
+            }
           }}>
             <GatewayCardFields
               gateway={gateway}
               pubKey={gatewayPubKey}
               amount={planAmount}
-              onCardChange={({ brand, last4 }) => {
-                if (brand) setCardBrand(brand);
-                if (last4) setCardLast4(last4);
+              onCardChange={({ brand, last4, expiry, cvcFocused: cvf }) => {
+                if (brand !== undefined) setCardBrand(brand);
+                if (last4 !== undefined) setCardLast4(last4);
+                if (expiry !== undefined) setCardExpiry(expiry);
+                if (cvf !== undefined) setCvcFocused(cvf);
               }}
               innerRef={cardFieldRef}
             />

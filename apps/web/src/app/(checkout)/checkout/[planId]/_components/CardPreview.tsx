@@ -10,6 +10,7 @@ interface CardPreviewProps {
   holderName: string;
   brand?:     string;
   last4?:     string;
+  expiry?:    string;   // MM/AA format
   isFlipped:  boolean;  // true when CVV field is focused
 }
 
@@ -26,7 +27,7 @@ function getBrandGradient(brand?: string): string {
   return BRAND_COLORS[brand ?? ''] ?? BRAND_COLORS.default;
 }
 
-export default function CardPreview({ holderName, brand, last4, isFlipped }: CardPreviewProps) {
+export default function CardPreview({ holderName, brand, last4, expiry, isFlipped }: CardPreviewProps) {
   const gradient = getBrandGradient(brand);
   const displayNumber = last4
     ? `•••• •••• •••• ${last4}`
@@ -81,7 +82,7 @@ export default function CardPreview({ holderName, brand, last4, isFlipped }: Car
             </div>
             <div className="text-right">
               <p className="text-white/50 text-[9px] uppercase tracking-widest mb-0.5">Válido até</p>
-              <p className="text-white text-[12px] font-semibold tracking-wide">MM/AA</p>
+              <p className="text-white text-[12px] font-semibold tracking-wide">{expiry || 'MM/AA'}</p>
             </div>
           </div>
         </div>

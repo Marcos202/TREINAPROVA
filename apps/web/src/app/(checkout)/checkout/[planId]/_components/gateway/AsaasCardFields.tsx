@@ -21,7 +21,7 @@ import type { GatewayCardRef } from './StripeCardFields';
 
 interface AsaasCardFieldsProps {
   pubKey:       string;
-  onCardChange: (info: { brand?: string; complete: boolean }) => void;
+  onCardChange: (info: { brand?: string; last4?: string; expiry?: string; cvcFocused?: boolean; complete: boolean }) => void;
   innerRef:     React.Ref<GatewayCardRef>;
 }
 
@@ -34,7 +34,7 @@ declare global {
 
 const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
   pubKey: string;
-  onCardChange: (info: { brand?: string; complete: boolean }) => void;
+  onCardChange: (info: { brand?: string; last4?: string; expiry?: string; cvcFocused?: boolean; complete: boolean }) => void;
 }>(({ pubKey, onCardChange }, ref) => {
   const [number,   setNumber]   = useState('');
   const [expiry,   setExpiry]   = useState('');
@@ -48,11 +48,13 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
   }, []);
 
   useEffect(() => {
-    const allFilled = number.replace(/\s/g, '').length >= 13
+    const cleaned = number.replace(/\s/g, '');
+    const allFilled = cleaned.length >= 13
       && expiry.length === 5
       && cvc.length >= 3
       && holder.trim().length >= 3;
-    onCardChange({ complete: allFilled });
+    const last4 = cleaned.length >= 4 ? cleaned.slice(-4) : undefined;
+    onCardChange({ last4, expiry: expiry || undefined, complete: allFilled });
   }, [number, expiry, cvc, holder, onCardChange]);
 
   useImperativeHandle(ref, () => ({
@@ -108,6 +110,8 @@ const AsaasCardFieldsInner = forwardRef<GatewayCardRef, {
             mask="0000"
             value={cvc}
             onAccept={(v: string) => setCvc(v)}
+            onFocus={() => onCardChange({ complete: false, cvcFocused: true })}
+            onBlur={() => onCardChange({ complete: false, cvcFocused: false })}
             placeholder="123"
             className={inputClass}
           />

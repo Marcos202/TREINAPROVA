@@ -48,7 +48,6 @@ export default function CheckoutOrchestrator({
     defaultValues: {
       fullName:      userName,
       email:         userEmail,
-      emailConfirm:  userEmail,
       paymentMethod: 'card',
       planId:        plan.id,
       installments:  1,
@@ -163,85 +162,117 @@ export default function CheckoutOrchestrator({
     );
   }
 
+  const gatewayLabel =
+    gateway === 'stripe' ? 'Stripe' :
+    gateway === 'asaas' ? 'Asaas' :
+    gateway === 'mercadopago' ? 'Mercado Pago' : 'Gateway';
+
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
-      {/* ── Plan summary header ───────────────────────────── */}
-      <div className="text-center pb-2">
-        <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest mb-1">
-          Você está assinando
-        </p>
-        <h1 className="text-xl font-extrabold text-slate-900 leading-tight">
-          Treina Prova PRO — {BILLING_LABELS[plan.billing_period] ?? plan.billing_period}
-        </h1>
-        <p className="text-2xl font-extrabold text-slate-900 mt-1">
-          R$ <span>{plan.price.toFixed(2).replace('.', ',')}</span>
-        </p>
-      </div>
+    <div className="max-w-5xl mx-auto px-4 py-6 lg:py-10">
+      <div className="lg:grid lg:grid-cols-12 lg:gap-8">
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        <PersonalInfoBlock register={register} errors={errors} control={control} />
-        <EmailBlock register={register} errors={errors} />
-        <PaymentTabs
-          gateway={gateway}
-          gatewayPubKey={gatewayPubKey}
-          planAmount={plan.price}
-          holderName={watchedName ?? ''}
-          installments={watchedInstallments ?? 1}
-          setValue={setValue}
-          cardFieldRef={cardRef}
-        />
-
-        {/* ── Submit ─────────────────────────────────────── */}
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full h-14 rounded-2xl bg-[#00a650] hover:bg-[#009644] disabled:opacity-60 disabled:cursor-not-allowed
-                     text-white text-[16px] font-bold tracking-wide shadow-lg hover:shadow-xl
-                     transition-all duration-200 flex items-center justify-center gap-2.5"
-        >
-          {busy ? (
-            <>
-              <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-              </svg>
-              Processando...
-            </>
-          ) : (
-            <>
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              Pagar agora
-            </>
-          )}
-        </button>
-
-        {/* ── Legal + trust badge ────────────────────────── */}
-        <div className="text-center space-y-3 pb-4">
-          <p className="text-[11px] text-slate-400">
-            Ao clicar em <span className="font-medium">"Pagar agora"</span>, você concorda com nossos{' '}
-            <a href="/termos" className="underline underline-offset-2 hover:text-slate-600 transition-colors">
-              termos de uso
-            </a>
-          </p>
-
-          <div className="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm">
-            <div className="w-6 h-6 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <svg className="w-3.5 h-3.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-            </div>
-            <div className="text-left">
-              <p className="text-[12px] font-bold text-slate-700">Pagamento 100% seguro processado por{' '}
-                <span className="text-green-600">
-                  {gateway === 'stripe' ? 'Stripe' : gateway === 'asaas' ? 'Asaas' : gateway === 'mercadopago' ? 'Mercado Pago' : 'Gateway'}
-                </span>
+        {/* ── LEFT: Plan summary sidebar (4 cols) ───────── */}
+        <aside className="hidden lg:flex lg:col-span-4 flex-col gap-5">
+          {/* Plan card */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+              Você está assinando
+            </p>
+            <div>
+              <h2 className="text-[18px] font-extrabold text-slate-900 leading-tight">
+                Treina Prova PRO
+              </h2>
+              <p className="text-[13px] text-slate-500 mt-0.5">
+                {BILLING_LABELS[plan.billing_period] ?? plan.billing_period}
               </p>
-              <p className="text-[10px] text-slate-400">Seus dados estão protegidos com criptografia SSL</p>
+            </div>
+            <div className="border-t border-slate-100 pt-4 flex items-end justify-between">
+              <span className="text-[13px] text-slate-500">Total</span>
+              <span className="text-[28px] font-extrabold text-slate-900 leading-none">
+                R$ {plan.price.toFixed(2).replace('.', ',')}
+              </span>
             </div>
           </div>
+
+          {/* Trust items */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
+            {[
+              { icon: '🔒', text: `Pagamento seguro processado por ${gatewayLabel}` },
+              { icon: '✅', text: 'Acesso imediato após confirmação' },
+              { icon: '🔄', text: 'Cancele quando quiser' },
+              { icon: '📧', text: 'Suporte por e-mail incluso' },
+            ].map(({ icon, text }) => (
+              <div key={text} className="flex items-start gap-3">
+                <span className="text-[16px] leading-none mt-0.5">{icon}</span>
+                <p className="text-[12px] text-slate-600 leading-relaxed">{text}</p>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        {/* ── RIGHT: Form (8 cols) ───────────────────────── */}
+        <div className="lg:col-span-8">
+          {/* Mobile-only plan summary */}
+          <div className="lg:hidden text-center mb-4">
+            <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest mb-1">
+              Você está assinando
+            </p>
+            <h1 className="text-xl font-extrabold text-slate-900">
+              Treina Prova PRO — {BILLING_LABELS[plan.billing_period] ?? plan.billing_period}
+            </h1>
+            <p className="text-2xl font-extrabold text-slate-900 mt-1">
+              R$ {plan.price.toFixed(2).replace('.', ',')}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+            <PersonalInfoBlock register={register} errors={errors} control={control} />
+            <EmailBlock register={register} errors={errors} />
+            <PaymentTabs
+              gateway={gateway}
+              gatewayPubKey={gatewayPubKey}
+              planAmount={plan.price}
+              holderName={watchedName ?? ''}
+              installments={watchedInstallments ?? 1}
+              setValue={setValue}
+              cardFieldRef={cardRef}
+            />
+
+            {/* ── Submit ───────────────────────────────────── */}
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full h-14 rounded-2xl bg-[#00a650] hover:bg-[#009644] disabled:opacity-60 disabled:cursor-not-allowed
+                         text-white text-[16px] font-bold tracking-wide shadow-lg hover:shadow-xl
+                         transition-all duration-200 flex items-center justify-center gap-2.5"
+            >
+              {busy ? (
+                <>
+                  <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                  </svg>
+                  Processando...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  Pagar agora
+                </>
+              )}
+            </button>
+
+            {/* ── Legal ───────────────────────────────────── */}
+            <p className="text-center text-[11px] text-slate-400 pb-4">
+              Ao clicar em <span className="font-medium">"Pagar agora"</span>, você concorda com nossos{' '}
+              <a href="/termos" className="underline underline-offset-2 hover:text-slate-600 transition-colors">
+                termos de uso
+              </a>
+            </p>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
