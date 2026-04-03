@@ -14,97 +14,55 @@ export default function LoginPage() {
   const translateError = (message: string): string => {
     const translations: Record<string, string> = {
       "Invalid login credentials": "E-mail ou senha incorretos.",
-      "Email not confirmed": "E-mail ainda não foi confirmado.",
+      "Email not confirmed": "E-mail ainda não foi confirmado. Verifique sua caixa de entrada.",
       "User already registered": "Este e-mail já possui uma conta cadastrada.",
-      "Password should be at least 6 characters":
-        "A senha deve ter no mínimo 6 caracteres.",
-      "Unable to validate email address: invalid format":
-        "Formato de e-mail inválido.",
-      "Signup requires a valid password":
-        "É necessário informar uma senha válida.",
+      "Password should be at least 6 characters": "A senha deve ter no mínimo 6 caracteres.",
+      "Unable to validate email address: invalid format": "Formato de e-mail inválido.",
+      "Signup requires a valid password": "É necessário informar uma senha válida.",
+      "Request rate limit reached": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
+      "over_email_send_rate_limit": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
     };
     return translations[message] || message;
   };
 
-  const handleSubmit = async (e?: any) => {
+  const handleSubmit = async (e?: React.MouseEvent | React.FormEvent) => {
     e?.preventDefault();
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log("[1/10] 🔥 Clique interceptado com sucesso!");
-    console.log("[2/10] 🔍 hostname:", window.location.hostname);
-    console.log("[2/10] 🔍 isLocalhost check:", window.location.hostname.includes('localhost'));
-    console.log("[2/10] 🔍 Cookie domain SERÁ:", window.location.hostname.includes('localhost') ? '.localhost' : '.treinaprova.com');
-    console.log("[3/10] Modo:", isLoginMode ? "LOGIN" : "CADASTRO");
-    console.log("[3/10] Email:", email, "| Password length:", password.length);
 
-    // Validação de nome no modo cadastro
     if (!isLoginMode && !fullName.trim()) {
-      console.log("[ABORT] Nome vazio no modo cadastro.");
       setErrorMsg("O nome completo é obrigatório.");
       return;
     }
 
     setIsLoading(true);
     setErrorMsg("");
-    console.log("[4/10] isLoading = true. Criando client Supabase...");
 
     const supabase = createClient();
-    console.log("[5/10] Client Supabase criado. Disparando chamada auth...");
 
     try {
       if (isLoginMode) {
-        // ── LOGIN ──
-        console.log("[6/10] Chamando signInWithPassword...");
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        console.log("[7/10] signInWithPassword RETORNOU.");
-        console.log("[7/10] error:", error);
-        console.log("[7/10] data.user:", data?.user?.email || "null");
-        console.log("[7/10] data.session:", data?.session ? "EXISTE" : "NULL");
-
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-          console.log("[ABORT] Erro do Supabase:", error.message);
           setErrorMsg(translateError(error.message));
-          alert("❌ ERRO SUPABASE: " + error.message);
           setIsLoading(false);
           return;
         }
       } else {
-        // ── CADASTRO ──
-        console.log("[6/10] Chamando signUp...");
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: {
-              full_name: fullName.trim(),
-            },
-          },
+          options: { data: { full_name: fullName.trim() } },
         });
-        console.log("[7/10] signUp RETORNOU.");
-        console.log("[7/10] error:", error);
-        console.log("[7/10] data.user:", data?.user?.email || "null");
-        console.log("[7/10] data.session:", data?.session ? "EXISTE" : "NULL");
-
         if (error) {
-          console.log("[ABORT] Erro do Supabase:", error.message);
           setErrorMsg(translateError(error.message));
-          alert("❌ ERRO SUPABASE: " + error.message);
           setIsLoading(false);
           return;
         }
       }
 
-      // Sucesso em ambos os fluxos
-      console.log("[8/10] ✅ Auth concluída SEM ERRO!");
-      console.log("[9/10] Verificando cookies AGORA:", document.cookie);
-      console.log("[10/10] Tentando redirecionar para /aluno...");
-      // Força navegação completa (replace impede voltar ao login pelo botão "voltar")
       window.location.replace('/aluno');
-    } catch (ex: any) {
-      console.error("[CATCH] ❌ EXCEÇÃO NÃO TRATADA:", ex);
-      alert("❌ EXCEÇÃO JAVASCRIPT: " + ex?.message);
+    } catch (ex: unknown) {
+      const msg = ex instanceof Error ? ex.message : 'Erro inesperado.';
+      setErrorMsg(msg);
       setIsLoading(false);
     }
   };
@@ -118,7 +76,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
             {isLoginMode ? "Entrar na Treina Prova" : "Criar Nova Conta"}
@@ -130,24 +87,16 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Card do Formulário */}
-        <div
-          className="border border-slate-200 rounded-lg p-8 bg-white"
-        >
-          {/* Mensagem de Erro */}
+        <div className="border border-slate-200 rounded-lg p-8 bg-white">
           {errorMsg && (
             <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
               {errorMsg}
             </div>
           )}
 
-          {/* Campo Nome Completo (apenas Cadastro) */}
           {!isLoginMode && (
             <div className="mb-4">
-              <label
-                htmlFor="fullName"
-                className="block mb-1.5 text-sm font-medium text-slate-700"
-              >
+              <label htmlFor="fullName" className="block mb-1.5 text-sm font-medium text-slate-700">
                 Nome Completo
               </label>
               <input
@@ -161,12 +110,8 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Campo E-mail */}
           <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block mb-1.5 text-sm font-medium text-slate-700"
-            >
+            <label htmlFor="email" className="block mb-1.5 text-sm font-medium text-slate-700">
               E-mail
             </label>
             <input
@@ -180,12 +125,8 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Campo Senha */}
           <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="block mb-1.5 text-sm font-medium text-slate-700"
-            >
+            <label htmlFor="password" className="block mb-1.5 text-sm font-medium text-slate-700">
               Senha
             </label>
             <input
@@ -199,21 +140,15 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Botão Submit */}
           <button
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
             className="w-full py-2.5 px-4 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isLoading
-              ? "Processando..."
-              : isLoginMode
-                ? "Entrar"
-                : "Criar Conta"}
+            {isLoading ? "Processando..." : isLoginMode ? "Entrar" : "Criar Conta"}
           </button>
 
-          {/* Toggle Login/Cadastro */}
           <div className="text-center mt-5">
             <button
               type="button"
