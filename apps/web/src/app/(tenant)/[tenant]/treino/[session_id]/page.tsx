@@ -33,7 +33,7 @@ export default async function TreinoSessionPage({ params }: Props) {
   // Fetch all questions in the session at once (preserves order in JS)
   const { data: questionsRaw } = await supabase
     .from('questions')
-    .select('id, text, options, correct_option, difficulty, general_explanation, year, exam_board_id, institution_id, subcategories, subjects(name), exam_boards(name), institutions(name)')
+    .select('id, text, options, correct_option, difficulty, general_explanation, exam_board_id, institution_id, subcategory_id, exam_name_id, subjects(name), exam_boards(name), institutions(name), subcategories(name), exams_names(name, year)')
     .in('id', qSession.question_ids as string[]);
 
   if (!questionsRaw?.length) notFound();

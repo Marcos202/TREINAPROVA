@@ -141,11 +141,13 @@ export default function Sidebar({ tenant, tenantLabel }: SidebarProps) {
           </p>
           {NAV_ITEMS.map((item) => {
             const fullHref = `/${tenant}${item.path}`;
+            const itemHref = `/${tenant}${item.path}`;
             const isActive =
               item.path === ''
                 ? pathname === `/${tenant}` || pathname === `/${tenant}/`
-                : pathname.startsWith(`/${tenant}${item.path}`) ||
-                (item.path === '/questoes' && pathname.startsWith(`/${tenant}/treino`));
+                : pathname === itemHref ||
+                  pathname.startsWith(`${itemHref}/`) ||
+                  (item.path === '/questoes' && pathname.startsWith(`/${tenant}/treino`));
 
             const Icon = item.icon;
 
@@ -185,12 +187,13 @@ export default function Sidebar({ tenant, tenantLabel }: SidebarProps) {
             <p className="text-[11px] text-slate-500 leading-relaxed mb-3">
               Desbloqueie estatísticas avançadas e simulados infinitos.
             </p>
-            <button
-              className="w-full py-2 rounded-lg text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
+            <a
+              href={`/${tenant}/planos`}
+              className="block w-full py-2 rounded-lg text-[12px] font-semibold text-white text-center transition-opacity hover:opacity-90"
               style={{ background: theme.accentGradient }}
             >
               Fazer Upgrade
-            </button>
+            </a>
           </div>
         </div>
 
