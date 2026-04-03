@@ -18,13 +18,14 @@ interface Question {
   difficulty: string;
   general_explanation: string | null;
   subjects?: { name: string } | null;
-  // Extended fields (fetched in page.tsx)
-  year?: number | null;
   exam_board_id?: string | null;
   institution_id?: string | null;
+  subcategory_id?: string | null;
+  exam_name_id?: string | null;
   exam_boards?: { name: string } | null;
   institutions?: { name: string } | null;
-  subcategories?: string[];
+  subcategories?: { name: string } | null;
+  exams_names?: { name: string; year: number | null } | null;
 }
 
 interface Props {
@@ -437,21 +438,19 @@ export function QuestionEngineUI({ tenant, theme, sessionId, userId, questions, 
           </div>
 
           {/* ── Card: Tags ── */}
-          {question.subcategories && question.subcategories.length > 0 && (
+          {question.subcategories?.name && (
             <div className="bg-white rounded-2xl border border-slate-200/60 p-5">
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
                 Tags da Questão
               </p>
               <ul className="space-y-2">
-                {question.subcategories.slice(0, 5).map((tag, i) => (
-                  <li key={tag} className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: TAG_COLORS[i % TAG_COLORS.length] }}
-                    />
-                    <span className="text-xs text-slate-700 leading-tight">{tag}</span>
-                  </li>
-                ))}
+                <li className="flex items-center gap-2">
+                  <div
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: TAG_COLORS[0] }}
+                  />
+                  <span className="text-xs text-slate-700 leading-tight">{question.subcategories.name}</span>
+                </li>
               </ul>
             </div>
           )}
@@ -459,7 +458,7 @@ export function QuestionEngineUI({ tenant, theme, sessionId, userId, questions, 
           {/* ── Card: Informações ── */}
           <div className="bg-white rounded-2xl border border-slate-200/60 p-5">
             <h3 className="text-[13px] font-bold text-slate-900 mb-3">Informações</h3>
-            {(!question.exam_boards?.name && !question.institutions?.name && !question.year) ? (
+            {(!question.exam_boards?.name && !question.institutions?.name && !question.exams_names?.year) ? (
               <p className="text-[11px] text-slate-400">Sem informações cadastradas.</p>
             ) : (
               <dl className="space-y-3">
@@ -475,10 +474,10 @@ export function QuestionEngineUI({ tenant, theme, sessionId, userId, questions, 
                     <dd className="text-[12px] font-semibold text-slate-800 mt-0.5">{question.institutions.name}</dd>
                   </div>
                 )}
-                {question.year && (
+                {question.exams_names?.year && (
                   <div>
                     <dt className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Ano</dt>
-                    <dd className="text-[12px] font-semibold text-slate-800 mt-0.5">{question.year}</dd>
+                    <dd className="text-[12px] font-semibold text-slate-800 mt-0.5">{question.exams_names.year}</dd>
                   </div>
                 )}
                 {question.difficulty && (

@@ -87,7 +87,7 @@ export default async function AdminDashboard() {
           label="Total de Questões"
           value={countQuestoes ?? 0}
           description="no banco de dados"
-          href="/admin/questoes/med"
+          href="/admin/med/questoes"
         />
 
         {/* Taxa de Conversão */}
@@ -126,7 +126,7 @@ export default async function AdminDashboard() {
               <p className="text-xs text-gray-400 mt-0.5">{countQuestoes ?? 0} questões no total</p>
             </div>
             <Link
-              href="/admin/questoes/med"
+              href="/admin/med/questoes"
               className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
             >
               Ver banco →
@@ -169,11 +169,11 @@ export default async function AdminDashboard() {
           </div>
           <div className="p-4 space-y-2">
             {[
-              { href: '/admin/questoes/med',  label: 'Questões de Medicina',    icon: <PlusIcon className="w-3.5 h-3.5" />, color: 'blue'    },
-              { href: '/admin/questoes/oab',  label: 'Questões de OAB',         icon: <PlusIcon className="w-3.5 h-3.5" />, color: 'emerald' },
-              { href: '/admin/questoes/enem', label: 'Questões de ENEM',        icon: <PlusIcon className="w-3.5 h-3.5" />, color: 'orange'  },
+              { href: '/admin/med/questoes',  label: 'Questões de Medicina',    icon: <PlusIcon className="w-3.5 h-3.5" />, color: 'blue'    },
+              { href: '/admin/oab/questoes',  label: 'Questões de OAB',         icon: <PlusIcon className="w-3.5 h-3.5" />, color: 'emerald' },
+              { href: '/admin/enem/questoes', label: 'Questões de ENEM',        icon: <PlusIcon className="w-3.5 h-3.5" />, color: 'orange'  },
               { href: '/admin/usuarios',      label: 'Gerenciar Usuários',      icon: <UsersIcon className="w-3.5 h-3.5" />, color: 'violet' },
-              { href: '/admin/simulados',     label: 'Criar Simulado',          icon: <FileTextIcon className="w-3.5 h-3.5" />, color: 'gray' },
+              { href: '/admin/med/simulados', label: 'Criar Simulado',          icon: <FileTextIcon className="w-3.5 h-3.5" />, color: 'gray' },
             ].map(({ href, label, icon, color }) => (
               <Link
                 key={href}

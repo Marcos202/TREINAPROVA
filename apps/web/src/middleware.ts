@@ -8,7 +8,11 @@ export async function middleware(request: NextRequest) {
   // Identificar contexto da rota
   const firstSegment = pathname.split('/')[1];
   const isTenantRoute = VALID_TENANTS.includes(firstSegment);
-  const isTenantLoginRoute = isTenantRoute && pathname === `/${firstSegment}/login`;
+  const isTenantLoginRoute  = isTenantRoute && pathname === `/${firstSegment}/login`;
+  // Página de planos é pública — qualquer visitante pode ver os preços
+  const isTenantPlanosRoute = isTenantRoute && pathname === `/${firstSegment}/planos`;
+  // Checkout requer autenticação (protegido abaixo, fora do bloco de tenant)
+  const isCheckoutRoute = pathname.startsWith('/checkout');
   const isAlunoRoute = pathname.startsWith('/aluno');
   const isAdminRoute = pathname.startsWith('/admin');
 
@@ -18,7 +22,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Rotas não protegidas passam sem verificação
-  if (!isTenantRoute && !isAlunoRoute && !isAdminRoute) {
+  if (!isTenantRoute && !isAlunoRoute && !isAdminRoute && !isCheckoutRoute) {
     return NextResponse.next();
   }
 
@@ -63,13 +67,20 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Checkout sem sessão → /login (com returnTo para voltar após autenticação)
+  if (isCheckoutRoute && !session) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirectedFrom', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
   // /aluno sem sessão → /login
   if (isAlunoRoute && !session) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Rota de tenant sem sessão (e não é a página de login) → /[tenant]/login?redirectedFrom=...
-  if (isTenantRoute && !session && !isTenantLoginRoute) {
+  // Rota de tenant sem sessão (e não é login nem planos) → /[tenant]/login?redirectedFrom=...
+  if (isTenantRoute && !session && !isTenantLoginRoute && !isTenantPlanosRoute) {
     const loginUrl = new URL(`/${firstSegment}/login`, request.url);
     loginUrl.searchParams.set('redirectedFrom', pathname);
     return NextResponse.redirect(loginUrl);
