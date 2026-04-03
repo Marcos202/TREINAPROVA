@@ -18,9 +18,26 @@ export function createClient() {
         path: '/',
         sameSite: 'lax',
         secure: !isLocal,
-      }
+      },
+      auth: {
+        // Desliga o auto-refresh padrão — o SupabaseAuthGuard cuida
+        // da limpeza de sessão inválida sem criar loops de requisição
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+      },
     }
   )
 
   return supabaseClient;
+}
+
+/**
+ * Limpa o singleton do cliente Supabase.
+ * Chamado pelo SupabaseAuthGuard após SIGNED_OUT para garantir que
+ * a próxima chamada a createClient() receba uma instância limpa
+ * sem timers de refresh pendentes.
+ */
+export function resetClient() {
+  supabaseClient = undefined;
 }
