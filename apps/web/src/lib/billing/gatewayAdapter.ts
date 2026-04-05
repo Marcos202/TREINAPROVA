@@ -142,15 +142,19 @@ function translateStripeError(code?: string): string {
 
 // ── Asaas Adapter ─────────────────────────────────────────────
 
-const isDev = process.env.NODE_ENV !== 'production';
-const ASAAS_BASE = isDev
-  ? 'https://sandbox.asaas.com/api/v3'
-  : 'https://api.asaas.com/v3';
+function getAsaasBaseUrl(secretKey: string): string {
+  const isSandbox = secretKey.includes('_hmlg_');
+  console.info(`[asaas] routing to ${isSandbox ? 'SANDBOX' : 'PRODUCTION'}`);
+  return isSandbox
+    ? 'https://sandbox.asaas.com/api/v3'
+    : 'https://api.asaas.com/v3';
+}
 
 async function chargeAsaas(
   secretKey: string,
   params: ChargeCardParams,
 ): Promise<GatewayChargeResult> {
+  const ASAAS_BASE = getAsaasBaseUrl(secretKey);
   const headers = {
     'Content-Type': 'application/json',
     'access_token': secretKey,
@@ -212,6 +216,7 @@ async function createAsaasPixCharge(
   secretKey: string,
   params: PixParams,
 ): Promise<GatewayChargeResult> {
+  const ASAAS_BASE = getAsaasBaseUrl(secretKey);
   const headers = {
     'Content-Type': 'application/json',
     'access_token': secretKey,
@@ -272,6 +277,7 @@ async function createAsaasBoletoCharge(
   secretKey: string,
   params: PixParams,
 ): Promise<GatewayChargeResult> {
+  const ASAAS_BASE = getAsaasBaseUrl(secretKey);
   const headers = {
     'Content-Type': 'application/json',
     'access_token': secretKey,
