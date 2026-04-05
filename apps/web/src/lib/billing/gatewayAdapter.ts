@@ -142,7 +142,10 @@ function translateStripeError(code?: string): string {
 
 // ── Asaas Adapter ─────────────────────────────────────────────
 
-const ASAAS_BASE = 'https://api.asaas.com/v3';
+const isDev = process.env.NODE_ENV !== 'production';
+const ASAAS_BASE = isDev
+  ? 'https://sandbox.asaas.com/api/v3'
+  : 'https://api.asaas.com/v3';
 
 async function chargeAsaas(
   secretKey: string,
@@ -168,8 +171,8 @@ async function chargeAsaas(
   const customer = await customerRes.json();
   if (!customerRes.ok) {
     console.error('[asaas][chargeCard] customer creation failed:', JSON.stringify(customer));
-    const msg = customer?.errors?.[0]?.description ?? customer?.error ?? 'Erro ao registrar cliente.';
-    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: msg };
+    const raw = customer?.errors?.[0]?.description ?? customer?.error ?? 'Dados do pagador inválidos.';
+    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: `Erro no Pagamento: ${raw}` };
   }
 
   // 2) Create credit card charge
@@ -228,8 +231,8 @@ async function createAsaasPixCharge(
   const customer = await customerRes.json();
   if (!customerRes.ok) {
     console.error('[asaas][createPix] customer creation failed:', JSON.stringify(customer));
-    const msg = customer?.errors?.[0]?.description ?? customer?.error ?? 'Erro ao registrar cliente.';
-    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: msg };
+    const raw = customer?.errors?.[0]?.description ?? customer?.error ?? 'Dados do pagador inválidos.';
+    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: `Erro no Pagamento: ${raw}` };
   }
 
   const chargeRes = await fetch(`${ASAAS_BASE}/payments`, {
@@ -289,8 +292,8 @@ async function createAsaasBoletoCharge(
   const customer = await customerRes.json();
   if (!customerRes.ok) {
     console.error('[asaas][createBoleto] customer creation failed:', JSON.stringify(customer));
-    const msg = customer?.errors?.[0]?.description ?? customer?.error ?? 'Erro ao registrar cliente.';
-    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: msg };
+    const raw = customer?.errors?.[0]?.description ?? customer?.error ?? 'Dados do pagador inválidos.';
+    return { success: false, gatewayChargeId: '', status: 'failed', errorMessage: `Erro no Pagamento: ${raw}` };
   }
 
   // 2) Create boleto charge (due date = 3 business days)
