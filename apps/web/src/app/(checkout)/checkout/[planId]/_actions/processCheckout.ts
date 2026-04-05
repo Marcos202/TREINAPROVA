@@ -37,17 +37,21 @@ export async function processCheckout(
   const ipHash = createHash('sha256').update(ip).digest('hex');
 
   const service = createServiceClient();
-  const { data: limitData } = await service.rpc('check_checkout_rate_limit', {
-    p_user_id: user.id,
-    p_ip_hash: ipHash,
-  });
 
-  const limitRow = Array.isArray(limitData) ? limitData[0] : limitData;
-  if (limitRow && !limitRow.allowed) {
-    return {
-      error:   RATE_LIMIT_MESSAGES[limitRow.reason] ?? 'Limite de tentativas atingido.',
-      blocked: true,
-    };
+  // Dev bypass: skip rate limit entirely in non-production environments
+  if (process.env.NODE_ENV === 'production') {
+    const { data: limitData } = await service.rpc('check_checkout_rate_limit', {
+      p_user_id: user.id,
+      p_ip_hash: ipHash,
+    });
+
+    const limitRow = Array.isArray(limitData) ? limitData[0] : limitData;
+    if (limitRow && !limitRow.allowed) {
+      return {
+        error:   RATE_LIMIT_MESSAGES[limitRow.reason] ?? 'Limite de tentativas atingido.',
+        blocked: true,
+      };
+    }
   }
 
   // ── 3. Zod validation ────────────────────────────────────
